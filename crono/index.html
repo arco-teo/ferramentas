@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicación de Cronómetro</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            overflow: hidden; /* Evitar desprazamentos no corpo */
+        }
+        .sidebar {
+            width: 300px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        .main {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: #fff;
+            transition: all 0.3s ease; /* Transición suave ao mostrar/ocultar */
+        }
+        #timerDisplay {
+            font-size: 12rem; /* Tamaño moi grande para o cronómetro */
+            margin: 20px 0;
+            width: 100%; /* Ocupa toda a anchura */
+            text-align: center;
+        }
+        .hidden {
+            transform: translateX(-100%);
+        }
+        #toggleConfig {
+            margin-bottom: 10px;
+        }
+        .config-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="configMenu">
+        <button id="toggleConfig" class="btn btn-secondary">Ocultar Opcións</button>
+        <h2>Información</h2>
+        <p id="turno">Turno: A-B</p>
+        <p id="ronda">Ronda: 1</p>
+        
+        <h2>Configuración</h2>
+        <div class="form-group">
+            <label for="seguridade">Tempo de seguridade (segundos):</label>
+            <input type="number" id="seguridade" class="form-control" placeholder="Segundos" min="1">
+        </div>
+        <div class="form-group">
+            <label for="tirada">Tempo de tirada (segundos):</label>
+            <input type="number" id="tirada" class="form-control" placeholder="Segundos" min="1">
+        </div>
+
+        <h2>Opcións</h2>
+        <div>
+            <label><input type="radio" name="turno" value="AB" checked>A-B</label><br>
+            <label><input type="radio" name="turno" value="ABCD">A-B-C-D</label>
+        </div>
+
+        <button id="play" class="btn btn-primary">Xogar</button>
+        <button id="stop" class="btn btn-danger" style="display:none;">Parar</button>
+    </div>
+
+    <div class="main">
+        <h2 id="timerTitle">Tempo de Seguridade</h2> <!-- Título dinámico -->
+        <div id="timerDisplay">00:00</div>
+        <button id="next" class="btn btn-success" style="display:none;">Siguiente</button>
+        <i class="fas fa-cog config-icon" id="showConfig" style="display:none;" title="Mostrar Configuración"></i> <!-- Icono para mostrar configuración -->
+    </div>
+
+    <script>
+        let rondaActual = 1;
+        let turnoActual = 'AB';
+        let enCurso = false;
+        let tempoSeguridade = 0;
+        let tempoTirada = 0;
+        let contaAtras;
+
+        function actualizarDisplay() {
+            document.getElementById('turno').innerText = `Turno: ${turnoActual}`;
+            document.getElementById('ronda').innerText = `Ronda: ${rondaActual}`;
+        }
+
+        function bip() {
+            const audio = new Audio('beep-01a.mp3');
+            audio.play();
+        }
+
+        function iniciarContaAtras(duracion, aoCompletar, titulo) {
+            document.getElementById('timerTitle').innerText = titulo; // Cambiar título segundo a fase
+            let tempoRestante = duracion;
+            contaAtras = setInterval(() => {
+                if (tempoRestante <= 0) {
+                    clearInterval(contaAtras);
+                    aoCompletar();
+                    return;
+                }
+                tempoRestante--;
+                const minutos = Math.floor(tempoRestante / 60);
+                const segundos = tempoRestante % 60;
+                document.getElementById('timerDisplay').innerText = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function xogar() {
+            if (enCurso) return;
+            enCurso = true;
+
+            tempoSeguridade = parseInt(document.getElementById('seguridade').value) || 0;
+            tempoTirada = parseInt(document.getElementById('tirada').value) || 0;
+
+            document.getElementById('seguridade').disabled = true;
+            document.getElementById('tirada').disabled = true;
+            document.querySelectorAll('input[name="turno"]').forEach(radio => radio.disabled = true);
+            bip();
+            bip();
+            iniciarContaAtras(tempoSeguridade, () => {
+                bip();
+                iniciarContaAtras(tempoTirada, () => {
+                    bip();
+                    document.getElementById('next').style.display = 'inline-block';
+                    enCurso = false; // Detén o estado de xogo ao finalizar a tirada
+                }, "Tempo");
+            }, "Tempo de Seguridade");
+        }
+
+        document.getElementById('play').onclick = xogar;
+
+        document.getElementById('next').onclick = function () {
+            clearInterval(contaAtras);
+            document.getElementById('timerDisplay').innerText = '00:00';
+            this.style.display = 'none';  // Oculta o botón "Siguiente"
+
+            // Lógica para actualizar turno e ronda
+            if (document.querySelector('input[name="turno"]:checked').value === 'AB') {
+                rondaActual++;
+                turnoActual = rondaActual % 2 === 0 ? 'C-D' : 'A-B';
+            } else {
+                if (turnoActual === 'A-B') {
+                    turnoActual = 'C-D';
+                } else {
+                    rondaActual++;
+                    turnoActual = 'A-B';
+                }
+            }
+            actualizarDisplay();
+
+            // Inicia o xogo novamente
+            xogar(); 
+        };
+
+        document.getElementById('stop').onclick = function () {
+            clearInterval(contaAtras);
+            enCurso = false;
+            document.getElementById('seguridade').disabled = false;
+            document.getElementById('tirada').disabled = false;
+            document.querySelectorAll('input[name="turno"]').forEach(radio => radio.disabled = false);
+            document.getElementById('next').style.display = 'none';
+            document.getElementById('timerDisplay').innerText = '00:00';
+        };
+
+        // Función para alternar a visibilidade da configuración
+        document.getElementById('toggleConfig').onclick = function () {
+            const configMenu = document.getElementById('configMenu');
+            configMenu.classList.toggle('hidden');
+            this.innerText = configMenu.classList.contains('hidden') ? 'Mostrar Opcións' : 'Ocultar Opcións';
+            document.getElementById('showConfig').style.display = configMenu.classList.contains('hidden') ? 'block' : 'none';
+            centrarTemporizador(); // Centrar o temporizador ao ocultar/mostrar
+        };
+
+        // Mostrar configuración ao facer clic no icono
+        document.getElementById('showConfig').onclick = function () {
+            const configMenu = document.getElementById('configMenu');
+            configMenu.classList.remove('hidden');
+            document.getElementById('toggleConfig').innerText = 'Ocultar Opcións';
+            this.style.display = 'none'; // Oculta o icono
+            centrarTemporizador(); // Centrar o temporizador ao mostrar
+        };
+
+        // Función para centrar o temporizador
+        function centrarTemporizador() {
+            const mainContent = document.querySelector('.main');
+            if (document.getElementById('configMenu').classList.contains('hidden')) {
+                mainContent.style.justifyContent = 'center';
+                mainContent.style.alignItems = 'center';
+            } else {
+                mainContent.style.justifyContent = 'flex-start';
+                mainContent.style.alignItems = 'flex-start';
+            }
+        }
+    </script>
+</body>
+</html>
