@@ -84,6 +84,10 @@
         <i class="fas fa-cog config-icon" id="showConfig" style="display:none;" title="Mostrar Configuración"></i> <!-- Icono para mostrar configuración -->
     </div>
 
+    <div class="footer">
+        <p>&copy; 2024 Pablo Belay </p>
+    </div>
+
     <script>
         let rondaActual = 1;
         let turnoActual = 'AB';
@@ -148,7 +152,7 @@
             this.style.display = 'none';  // Oculta o botón "Siguiente"
 
             // Lógica para actualizar turno e ronda
-            if (document.querySelector('input[name="turno"]:checked').value === 'AB') {
+            if (document.querySelector('input[name="turno"]:checked').value === 'ABCD') {
                 rondaActual++;
                 turnoActual = rondaActual % 2 === 0 ? 'C-D' : 'A-B';
             } else {

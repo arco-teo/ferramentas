@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Pulgadas e Centímetros</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 20px 0;
+            background-color: #343a40;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Conversor de Pulgadas e Centímetros</h1>
+
+        <!-- Conversor de Pulgadas a Centímetros -->
+        <div class="mb-5">
+            <h2>Pulgadas a Centímetros</h2>
+            <div class="form-group">
+                <label for="pulgadas">Introduce a medida en polgadas:</label>
+                <input type="number" id="pulgadas" class="form-control" placeholder="Pulgadas" min="0">
+            </div>
+            <button id="convertirPulgadas" class="btn btn-primary">Converter</button>
+            <button id="limpiarPulgadas" class="btn btn-secondary">Limpar</button>
+            <p id="resultadoPulgadas" class="result"></p>
+        </div>
+
+        <!-- Conversor de Centímetros a Pulgadas -->
+        <div>
+            <h2>Centímetros a Pulgadas</h2>
+            <div class="form-group">
+                <label for="centimetros">Introduce a medida en centímetros:</label>
+                <input type="number" id="centimetros" class="form-control" placeholder="Centímetros" min="0">
+            </div>
+            <button id="convertirCentimetros" class="btn btn-primary">Converter</button>
+            <button id="limpiarCentimetros" class="btn btn-secondary">Limpar</button>
+            <p id="resultadoCentimetros" class="result"></p>
+        </div>
+
+        <!-- Botón para volver á páxina de ferramentas -->
+        <a href="../index.html" class="btn btn-secondary mt-3">Voltar á Páxina de Ferramentas</a>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Pablo Belay</p>
+    </div>
+
+    <script>
+        // Función para converter polgadas a centímetros
+        document.getElementById('convertirPulgadas').onclick = function() {
+            const pulgadas = parseFloat(document.getElementById('pulgadas').value);
+            if (!isNaN(pulgadas)) {
+                const centimetros = pulgadas * 2.54;
+                document.getElementById('resultadoPulgadas').innerText = `${pulgadas} polgadas son ${centimetros.toFixed(2)} centímetros.`;
+            } else {
+                document.getElementById('resultadoPulgadas').innerText = "Por favor, introduce un número válido.";
+            }
+        };
+
+        // Función para converter centímetros a polgadas
+        document.getElementById('convertirCentimetros').onclick = function() {
+            const centimetros = parseFloat(document.getElementById('centimetros').value);
+            if (!isNaN(centimetros)) {
+                const pulgadas = centimetros / 2.54;
+                document.getElementById('resultadoCentimetros').innerText = `${centimetros} centímetros son ${pulgadas.toFixed(2)} polgadas.`;
+            } else {
+                document.getElementById('resultadoCentimetros').innerText = "Por favor, introduce un número válido.";
+            }
+        };
+
+        // Función para limpar a entrada e o resultado de polgadas
+        document.getElementById('limpiarPulgadas').onclick = function() {
+            document.getElementById('pulgadas').value = '';
+            document.getElementById('resultadoPulgadas').innerText = '';
+        };
+
+        // Función para limpar a entrada e o resultado de centímetros
+        document.getElementById('limpiarCentimetros').onclick = function() {
+            document.getElementById('centimetros').value = '';
+            document.getElementById('resultadoCentimetros').innerText = '';
+        };
+    </script>
+</body>
+</html>
