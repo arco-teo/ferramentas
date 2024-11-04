@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo do F.O.C.</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 20px 0;
+            background-color: #343a40;
+            color: white;
+        }
+        .description {
+            margin: 20px 0;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Cálculo do F.O.C.</h1>
+
+        <div class="description">
+            <p>O F.O.C. (Front of Center) é unha medida que indica a posición do centro de gravidade dunha flecha en relación á súa lonxitude total. Calcular o F.O.C. é importante para optimizar o rendemento da flecha na práctica de tiro con arco.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="distancia">Distancia desde o punto de equilibrio (S) en mm:</label>
+            <input type="number" id="distancia" class="form-control" placeholder="Introduce S (mm)" min="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="longitud">Lonxitude total da flecha (L) en mm:</label>
+            <input type="number" id="longitud" class="form-control" placeholder="Introduce L (mm)" min="0">
+        </div>
+
+        <button id="calcular" class="btn btn-primary">Calcular F.O.C.</button>
+        <button id="engadir" class="btn btn-success">Engadir</button>
+        <button id="limpiar" class="btn btn-secondary">Limpar</button>
+
+        <p id="resultado" class="result"></p>
+
+        <!-- Tabela para mostrar o historial de intentos -->
+        <h2 class="mt-5">Historial de Intentos</h2>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Nº de Intento</th>
+                    <th>Distancia S (mm)</th>
+                    <th>Lonxitude L (mm)</th>
+                    <th>F.O.C. (%)</th>
+                    <th>Accións</th>
+                </tr>
+            </thead>
+            <tbody id="historial">
+                <!-- As filas da táboa serán engadidas aquí -->
+            </tbody>
+        </table>
+
+        
+        <!-- Botón para volver á páxina de ferramentas -->
+        <a href="../index.html" class="btn btn-secondary mt-3">Voltar á Páxina de Ferramentas</a>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Pablo Belay</p>
+    </div>
+
+    <script>
+        let intentos = 0; // Contador de intentos
+
+        // Función para calcular o F.O.C.
+        document.getElementById('calcular').onclick = function() {
+            const S = parseFloat(document.getElementById('distancia').value); // Obter a distancia S
+            const L = parseFloat(document.getElementById('longitud').value); // Obter a lonxitude L
+
+            if (!isNaN(S) && !isNaN(L) && L > 0) {
+                const foc = ((L / 2 - S) / L) * 100; // Fórmula para calcular o F.O.C.
+                document.getElementById('resultado').innerText = `F.O.C. = ${foc.toFixed(2)} %`; // Mostrar o resultado
+                return foc; // Devolver o valor do F.O.C. para usalo na función engadir
+            } else {
+                document.getElementById('resultado').innerText = "Por favor, introduce valores válidos."; // Mensaxe de erro
+            }
+        };
+
+        // Función para engadir os datos á táboa
+        document.getElementById('engadir').onclick = function() {
+            const S = parseFloat(document.getElementById('distancia').value); // Obter a distancia S
+            const L = parseFloat(document.getElementById('longitud').value); // Obter a lonxitude L
+            const foc = ((L / 2 - S) / L) * 100; // Calcular o F.O.C.
+
+            if (!isNaN(S) && !isNaN(L) && L > 0) {
+                intentos++; // Incrementar o contador de intentos
+                const historial = document.getElementById('historial');
+                const novaFila = historial.insertRow(); // Engadir unha nova fila á táboa
+                novaFila.insertCell(0).innerText = intentos; // Nº de intento
+                novaFila.insertCell(1).innerText = S; // Distancia S
+                novaFila.insertCell(2).innerText = L; // Lonxitude L
+                novaFila.insertCell(3).innerText = foc.toFixed(2); // F.O.C.
+
+                // Engadir botóns para editar e eliminar
+                const cellAcciones = novaFila.insertCell(4);
+                const botonEliminar = document.createElement('button');
+                botonEliminar.innerText = 'Eliminar';
+                botonEliminar.className = 'btn btn-danger btn-sm';
+                botonEliminar.onclick = function() {
+                    historial.deleteRow(novaFila.rowIndex - 1); // Eliminar a fila
+                };
+                const botonEditar = document.createElement('button');
+                botonEditar.innerText = 'Editar';
+                botonEditar.className = 'btn btn-warning btn-sm';
+                botonEditar.onclick = function() {
+                    document.getElementById('distancia').value = S; // Restablecer a distancia S
+                    document.getElementById('longitud').value = L; // Restablecer a lonxitude L
+                    historial.deleteRow(novaFila.rowIndex - 1); // Eliminar a fila actual
+                };
+
+                cellAcciones.appendChild(botonEliminar); // Engadir botón de eliminar
+                cellAcciones.appendChild(botonEditar); // Engadir botón de editar
+            } else {
+                alert("Por favor, introduce valores válidos antes de engadir á táboa."); // Mensaxe de erro
+            }
+        };
+
+        // Función para limpar os campos e o resultado
+        document.getElementById('limpiar').onclick = function() {
+            document.getElementById('distancia').value = ''; // Limpar a entrada S
+            document.getElementById('longitud').value = ''; // Limpar a entrada L
+            document.getElementById('resultado').innerText = ''; // Limpar o resultado
+        };
+    </script>
+</body>
+</html>
