@@ -86,7 +86,7 @@
         <img src="flagGalicia.png" id="gl" alt="Galego" title="Galego">
         <img src="flagCatalonia.png" id="ca" alt="Català" title="Català">
         <img src="flagSpain.png" id="es" alt="Español" title="Español">
-        
+        <img src="flagPortugal.png" id="pt" alt="Portugés" title="Portugés">
     </div>
 
     <div class="hero">
@@ -101,7 +101,7 @@
         <ul class="tool-list">
             <li><a href="crono/index.html" class="btn btn-outline-primary btn-lg btn-block" id="timer-tool">Cronómetro</a></li>
             <li><a href="foc/index.html" class="btn btn-outline-primary btn-lg btn-block" id="foc-tool">Cálculo FOC</a></li>
-            <li><a href="conver-cm-pul/index.html" class="btn btn-outline-primary btn-lg btn-block" id="">Conversor de Pulgadas a Cm</a></li>
+            <li><a href="conver-cm-pul/index.html" class="btn btn-outline-primary btn-lg btn-block" id="inch-to-cm-tool">Conversor de Pulgadas a Cm</a></li>
             <li><a href="conver-lib-kg/index.html" class="btn btn-outline-primary btn-lg btn-block" id="lib-to-kg-tool">Conversor de Libras a Kg</a></li>
         </ul>
     </div>
@@ -143,7 +143,16 @@
                 "inch-to-cm-tool": "Conversor de Polzades a Cm",
                 "lib-to-kg-tool": "Conversor de Lliures a Kg",
                 "foc-tool": "Càlcul FOC"
-            }
+            },
+            pt: {
+                "page-title": "Ferramentas de Arco",
+                "hero-text": "Selecione uma ferramenta para sua necessidade.",
+                "tools-title": "Ferramentas Disponíveis",
+                "timer-tool": "Cronômetro",
+                "inch-to-cm-tool": "Conversor de Polegadas para Cm",
+                "lib-to-kg-tool": "Conversor de Libras para Kg",
+                "foc-tool": "Cálculo FOC"
+}
         };
 
         // Función para cambiar el idioma
@@ -154,7 +163,7 @@
             document.getElementById('tools-title').innerText = translation["tools-title"];
             document.getElementById('timer-tool').innerText = translation["timer-tool"];
             document.getElementById('inch-to-cm-tool').innerText = translation["inch-to-cm-tool"];
-            document.getElementById('lib-to-kg-too').innerText = translation["lib-to-kg-too"];
+            document.getElementById('lib-to-kg-tool').innerText = translation["lib-to-kg-tool"];
             document.getElementById('foc-tool').innerText = translation["foc-tool"];
         }
 
@@ -170,6 +179,11 @@
         document.getElementById('es').addEventListener('click', function() { 
             changeLanguage('es'); 
             updateLinks('es');
+        });
+
+        document.getElementById('pt').addEventListener('click', function() { 
+            changeLanguage('pt'); 
+            updateLinks('pt');
         });
 
         // Función para actualizar los enlaces con el parámetro lang
@@ -192,10 +206,10 @@
         // Obtener el parámetro 'lang' de la URL y cambiar el idioma automáticamente al cargar la página
         window.onload = function() {
             const langBrowser = getBrowserLanguage();  // Obtiene el idioma del navegador
-            const supportedLanguages = ['gl', 'es', 'ca'];  // Idiomas soportados
+            const supportedLanguages = ['gl', 'es', 'ca', 'pt'];  // Idiomas soportados
             const langToUse = supportedLanguages.includes(langBrowser) ? langBrowser : 'gl';  // Si no está en los idiomas soportados, usa 'gl'
             changeLanguage(langToUse);
-            updateLinks(lanngToUse);
+            updateLinks(langToUse);
             //const urlParams = new URLSearchParams(window.location.search);
            // const lang = urlParams.get('lang') || 'gl'; // Se non hai idioma soportado na URL, usa galego
             //changeLanguage(lang);
@@ -204,7 +218,7 @@
             document.getElementById('gl').classList.remove('selected');
             document.getElementById('ca').classList.remove('selected');
             document.getElementById('es').classList.remove('selected');
-            document.getElementById(lang).classList.add('selected');
+            document.getElementById(langToUse).classList.add('selected');
         };
     </script>
 </body>
