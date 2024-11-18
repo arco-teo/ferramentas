@@ -184,10 +184,10 @@
             const supportedLanguages = ['gl', 'es', 'ca'];  // Idiomas soportados
             const langToUse = supportedLanguages.includes(langBrowser) ? langBrowser : 'gl';  // Si no está en los idiomas soportados, usa 'gl'
             changeLanguage(langToUse);
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const lang = urlParams.get('lang') || 'gl'; // Si no hay parámetro, se carga en gallego por defecto
-            changeLanguage(lang);
+            updateLinks(lanngToUse);
+            //const urlParams = new URLSearchParams(window.location.search);
+           // const lang = urlParams.get('lang') || 'gl'; // Se non hai idioma soportado na URL, usa galego
+            //changeLanguage(lang);
 
             // Resaltar la bandera seleccionada
             document.getElementById('gl').classList.remove('selected');
