@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Páxina de Ferramentas</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -41,24 +42,39 @@
             background-color: #343a40;
             color: white;
         }
+        .language-selector {
+            text-align: center;
+            margin: 20px;
+        }
+        .language-selector img {
+            width: 40px;
+            height: 30px;
+            margin: 0 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+    <!-- Selector de idioma con banderas -->
+    <div class="language-selector">
+        <img src="flagGalicia.png" id="gl" alt="Galego" title="Galego">
+        <img src="flagCatalonia.png" id="ca" alt="Català" title="Català">
+        <img src="flagSpain.png" id="es" alt="Español" title="Español">
+    </div>
+
     <div class="hero">
         <div class="container">
-            <h1>Archery Tools </h1>
-            <p>Selecciona unha ferramenta para túa necesidade.</p>
+            <h1 id="page-title">Archery Tools</h1>
+            <p id="hero-text">Selecciona unha ferramenta para túa necesidade.</p>
         </div>
     </div>
 
     <div class="container my-5">
-        <h2>Ferramentas Dispoñibles</h2>
+        <h2 id="tools-title">Ferramentas Dispoñibles</h2>
         <ul class="tool-list">
-            <li><a href="crono/index.html" class="btn btn-outline-primary btn-lg btn-block">Cronómetro</a></li>
-            <li><a href="conver-cm-pul/index.html" class="btn btn-outline-primary btn-lg btn-block">Conversor de Pulgadas a Cm</a></li>
-            <li><a href="foc/index.html" class="btn btn-outline-primary btn-lg btn-block">Cálculo FOC</a></li>
-
-            <!--  <li><a href="conversor_libras_a_kg.html" class="btn btn-outline-primary btn-lg btn-block">Conversor de Libras a Kg</a></li>-->
+            <li><a href="crono/index.html" class="btn btn-outline-primary btn-lg btn-block" id="timer-tool">Cronómetro</a></li>
+            <li><a href="conver-cm-pul/index.html" class="btn btn-outline-primary btn-lg btn-block" id="inch-to-cm-tool">Conversor de Pulgadas a Cm</a></li>
+            <li><a href="foc/index.html" class="btn btn-outline-primary btn-lg btn-block" id="foc-tool">Cálculo FOC</a></li>
         </ul>
     </div>
 
@@ -69,5 +85,51 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Diccionario de traducciones
+        const translations = {
+            gl: {
+                "page-title": "Ferramentas de Arco",
+                "hero-text": "Selecciona unha ferramenta para a túa necesidade.",
+                "tools-title": "Ferramentas Dispoñibles",
+                "timer-tool": "Cronómetro",
+                "inch-to-cm-tool": "Conversor de Pulgadas a Cm",
+                "foc-tool": "Cálculo FOC"
+            },
+            es: {
+                "page-title": "Herramientas de Arco",
+                "hero-text": "Selecciona una herramienta para tu necesidad.",
+                "tools-title": "Herramientas Disponibles",
+                "timer-tool": "Cronómetro",
+                "inch-to-cm-tool": "Conversor de Pulgadas a Cm",
+                "foc-tool": "Cálculo FOC"
+            },
+            ca: {
+                "page-title": "Eines d'Arc",
+                "hero-text": "Selecciona una eina per a la teva necessitat.",
+                "tools-title": "Eines Disponibles",
+                "timer-tool": "Cronòmetre",
+                "inch-to-cm-tool": "Conversor de Polzades a Cm",
+                "foc-tool": "Càlcul FOC"
+            }
+        };
+
+        // Función para cambiar el idioma
+        function changeLanguage(lang) {
+            const translation = translations[lang];
+            document.getElementById('page-title').innerText = translation["page-title"];
+            document.getElementById('hero-text').innerText = translation["hero-text"];
+            document.getElementById('tools-title').innerText = translation["tools-title"];
+            document.getElementById('timer-tool').innerText = translation["timer-tool"];
+            document.getElementById('inch-to-cm-tool').innerText = translation["inch-to-cm-tool"];
+            document.getElementById('foc-tool').innerText = translation["foc-tool"];
+        }
+
+        // Agregar evento de clic a cada bandera para cambiar el idioma
+        document.getElementById('gl').addEventListener('click', function() { changeLanguage('gl'); });
+        document.getElementById('ca').addEventListener('click', function() { changeLanguage('ca'); });
+        document.getElementById('es').addEventListener('click', function() { changeLanguage('es'); });
+    </script>
 </body>
 </html>

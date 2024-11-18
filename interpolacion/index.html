@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajuste de Visor de Arco Recurvo</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 20px 0;
+            background-color: #343a40;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Ajuste de Visor de Arco Recurvo</h1>
+
+        <!-- Formulario de entrada -->
+        <div class="mb-5">
+            <h2>Introduce os parámetros</h2>
+            <div class="form-group">
+                <label for="potencia">Potencia do arco (en libras):</label>
+                <input type="number" id="potencia" class="form-control" placeholder="Potencia do arco" min="0" step="any">
+            </div>
+            <div class="form-group">
+                <label for="largoVisor">Largo do visor (en mm):</label>
+                <input type="number" id="largoVisor" class="form-control" placeholder="Largo do visor" min="0" step="any">
+            </div>
+            <div class="form-group">
+                <label for="alturaVisor">Altura inicial do visor (en mm) a 18 metros:</label>
+                <input type="number" id="alturaVisor" class="form-control" placeholder="Altura do visor" min="0" step="any" value="130">
+            </div>
+            <button id="calcularAjuste" class="btn btn-primary">Calcular Axuste do Visor</button>
+            <button id="limpiarDatos" class="btn btn-secondary">Limpar</button>
+            <p id="resultadoAjuste" class="result"></p>
+        </div>
+
+        <!-- Gráfico de la trayectoria -->
+        <div>
+            <h2>Gráfico da traxectoria do visor</h2>
+            <canvas id="graficoTrajectoria" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Botón para volver á páxina de ferramentas -->
+        <a href="../index.html" class="btn btn-secondary mt-3">Voltar á Páxina de Ferramentas</a>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Pablo Belay</p>
+    </div>
+
+    <script>
+        // Función para calcular el ajuste del visor en función de los parámetros
+        function calcularAjusteVisor(alturaInicial, distanciaObjetivo, altura70m, distancia70m) {
+            // Cálculo de parámetros a y k para la relación no lineal
+            const a = Math.log(altura70m / alturaInicial) / Math.log(distancia70m / 18);
+            const k = alturaInicial / Math.pow(18, a); // Esto asegura que a 18m, la altura es correcta
+
+            // Fórmula de ajuste del visor basada en una función exponencial o de potencia
+            const alturaAjuste = k * Math.pow(distanciaObjetivo, a);
+            return alturaAjuste;
+        }
+
+        // Función para mostrar los resultados y el gráfico
+        document.getElementById('calcularAjuste').onclick = function() {
+            const potencia = parseFloat(document.getElementById('potencia').value);
+            const largoVisor = parseFloat(document.getElementById('largoVisor').value);
+            const alturaVisor = parseFloat(document.getElementById('alturaVisor').value);
+
+            if (!isNaN(potencia) && !isNaN(largoVisor) && !isNaN(alturaVisor)) {
+                // Valores conocidos: altura a 18 m y a 70 m
+                const altura70m = 820; // Altura a 70 metros
+                const distancia70m = 70; // Distancia de referencia
+
+                // Distancias de cálculo
+                const distancias = [18, 30, 50, 70];
+                const alturas = [];
+
+                let resultado = `Resultados do axuste do visor para diferentes distancias (en mm):<br>`;
+
+                distancias.forEach(distancia => {
+                    const alturaAjustada = calcularAjusteVisor(alturaVisor, distancia, altura70m, distancia70m);
+                    alturas.push(alturaAjustada);
+                    resultado += `A distancia de ${distancia} metros require unha altura de visor de ${alturaAjustada.toFixed(2)} mm.<br>`;
+                });
+
+                // Mostrar el resultado en el HTML
+                document.getElementById('resultadoAjuste').innerHTML = resultado;
+
+                // Crear gráfico con las distancias y alturas calculadas
+                const ctx = document.getElementById('graficoTrajectoria').getContext('2d');
+                const grafico = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: distancias, // Distancias
+                        datasets: [{
+                            label: 'Altura do visor (mm)',
+                            data: alturas, // Alturas calculadas
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Distancia (metros)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Altura do visor (mm)'
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('resultadoAjuste').innerText = "Por favor, introduce valores válidos.";
+            }
+        };
+
+        // Función para limpiar los campos
+        document.getElementById('limpiarDatos').onclick = function() {
+            document.getElementById('potencia').value = '';
+            document.getElementById('largoVisor').value = '';
+            document.getElementById('alturaVisor').value = '';
+            document.getElementById('resultadoAjuste').innerText = '';
+            document.getElementById('graficoTrajectoria').remove();
+            const canvas = document.createElement('canvas');
+            canvas.id = 'graficoTrajectoria';
+            document.querySelector('div').appendChild(canvas);
+        };
+    </script>
+</body>
+</html>
