@@ -103,6 +103,40 @@
     </div>
 
     <script>
+
+        // Función para converter polgadas a centímetros
+        document.getElementById('convertirPulgadas').onclick = function() {
+            const pulgadas = parseFloat(document.getElementById('pulgadas').value);
+            if (!isNaN(pulgadas)) {
+                const centimetros = pulgadas * 2.54;
+                document.getElementById('resultadoPulgadas').innerText = `${pulgadas} polgadas son ${centimetros.toFixed(2)} centímetros.`;
+            } else {
+                document.getElementById('resultadoPulgadas').innerText = "Por favor, introduce un número válido.";
+            }
+        };
+
+        // Función para converter centímetros a polgadas
+        document.getElementById('convertirCentimetros').onclick = function() {
+            const centimetros = parseFloat(document.getElementById('centimetros').value);
+            if (!isNaN(centimetros)) {
+                const pulgadas = centimetros / 2.54;
+                document.getElementById('resultadoCentimetros').innerText = `${centimetros} centímetros son ${pulgadas.toFixed(2)} polgadas.`;
+            } else {
+                document.getElementById('resultadoCentimetros').innerText = "Por favor, introduce un número válido.";
+            }
+        };
+
+        // Función para limpar a entrada e o resultado de polgadas
+        document.getElementById('limpiarPulgadas').onclick = function() {
+            document.getElementById('pulgadas').value = '';
+            document.getElementById('resultadoPulgadas').innerText = '';
+        };
+
+        // Función para limpar a entrada e o resultado de centímetros
+        document.getElementById('limpiarCentimetros').onclick = function() {
+            document.getElementById('centimetros').value = '';
+            document.getElementById('resultadoCentimetros').innerText = '';
+        };
         // Diccionario de traducciones
         const translations = {
             gl: {
