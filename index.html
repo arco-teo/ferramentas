@@ -70,6 +70,11 @@
             border: 2px solid #007bff;
         }
 
+        .hero{
+            padding-top: 5px;
+             padding-bottom: 5px;
+        }
+
         
 
     </style>
@@ -81,6 +86,7 @@
         <img src="flagGalicia.png" id="gl" alt="Galego" title="Galego">
         <img src="flagCatalonia.png" id="ca" alt="Català" title="Català">
         <img src="flagSpain.png" id="es" alt="Español" title="Español">
+        
     </div>
 
     <div class="hero">
@@ -94,8 +100,9 @@
         <h2 id="tools-title">Ferramentas Dispoñibles</h2>
         <ul class="tool-list">
             <li><a href="crono/index.html" class="btn btn-outline-primary btn-lg btn-block" id="timer-tool">Cronómetro</a></li>
-            <li><a href="conver-cm-pul/index.html" class="btn btn-outline-primary btn-lg btn-block" id="inch-to-cm-tool">Conversor de Pulgadas a Cm</a></li>
             <li><a href="foc/index.html" class="btn btn-outline-primary btn-lg btn-block" id="foc-tool">Cálculo FOC</a></li>
+            <li><a href="conver-cm-pul/index.html" class="btn btn-outline-primary btn-lg btn-block" id="">Conversor de Pulgadas a Cm</a></li>
+            <li><a href="conver-lib-kg/index.html" class="btn btn-outline-primary btn-lg btn-block" id="lib-to-kg-tool">Conversor de Libras a Kg</a></li>
         </ul>
     </div>
 
@@ -116,6 +123,7 @@
                 "tools-title": "Ferramentas Dispoñibles",
                 "timer-tool": "Cronómetro",
                 "inch-to-cm-tool": "Conversor de Pulgadas a Cm",
+                "lib-to-kg-tool": "Conversor de Libras a Kg",
                 "foc-tool": "Cálculo FOC"
             },
             es: {
@@ -124,6 +132,7 @@
                 "tools-title": "Herramientas Disponibles",
                 "timer-tool": "Cronómetro",
                 "inch-to-cm-tool": "Conversor de Pulgadas a Cm",
+                "lib-to-kg-tool": "Conversor de Libras a Kg",
                 "foc-tool": "Cálculo FOC"
             },
             ca: {
@@ -132,6 +141,7 @@
                 "tools-title": "Eines Disponibles",
                 "timer-tool": "Cronòmetre",
                 "inch-to-cm-tool": "Conversor de Polzades a Cm",
+                "lib-to-kg-tool": "Conversor de Lliures a Kg",
                 "foc-tool": "Càlcul FOC"
             }
         };
@@ -144,6 +154,7 @@
             document.getElementById('tools-title').innerText = translation["tools-title"];
             document.getElementById('timer-tool').innerText = translation["timer-tool"];
             document.getElementById('inch-to-cm-tool').innerText = translation["inch-to-cm-tool"];
+            document.getElementById('lib-to-kg-too').innerText = translation["lib-to-kg-too"];
             document.getElementById('foc-tool').innerText = translation["foc-tool"];
         }
 
