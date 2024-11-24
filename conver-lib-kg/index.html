@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Libras a Kg Forza</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .result {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 20px 0;
+            background-color: #343a40;
+            color: white;
+        }
+        .language-selector {
+            text-align: center;
+            margin: 20px;
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .language-selector img {
+            width: 40px;
+            height: 30px;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .language-selector img:hover {
+            transform: scale(1.1);
+        }
+        .language-selector img.selected {
+            border: 2px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Selector de idioma con banderas -->
+    <div class="language-selector">
+        <p><strong>Selecciona idioma:</strong></p>
+        <img src="../flagGalicia.png" id="gl" alt="Galego" title="Galego">
+        <img src="../flagCatalonia.png" id="ca" alt="Català" title="Català">
+        <img src="../flagSpain.png" id="es" alt="Español" title="Español">
+    </div>
+
+    <div class="container">
+        <h1 class="text-center" id="page-title">Conversor de Libras a Kilogramos de Forza</h1>
+
+        <!-- Selector de tipo de conversión -->
+        <div class="form-group">
+            <label for="conversion-type" id="conversion-type-label">Selecciona tipo de conversión:</label>
+            <select id="conversion-type" class="form-control">
+                <option value="lbf-to-kgf" id="lbf-to-kgf-option">Libras de forza (lbf) a Kilogramos de forza (kgf)</option>
+                <option value="kgf-to-lbf" id="kgf-to-lbf-option">Kilogramos de forza (kgf) a Libras de forza (lbf)</option>
+            </select>
+        </div>
+
+        <!-- Conversión de Libras a Kilogramos -->
+        <div id="lbf-input" class="form-group">
+            <label for="libras" id="libras-label">Introduce a cantidade en libras de forza (lbf):</label>
+            <input type="number" id="libras" class="form-control" placeholder="Libras de forza" min="0">
+        </div>
+        
+        <!-- Conversión de Kilogramos a Libras -->
+        <div id="kgf-input" class="form-group" style="display: none;">
+            <label for="kgf" id="kgf-label">Introduce a cantidade en kilogramos de forza (kgf):</label>
+            <input type="number" id="kgf" class="form-control" placeholder="Kilogramos de forza" min="0">
+        </div>
+
+        <button id="convertir" class="btn btn-primary">Converter</button>
+        <button id="limpiar" class="btn btn-secondary">Limpar</button>
+
+        <p id="resultado" class="result"></p>
+
+        <div class="footer">
+            <p>&copy; 2024 Pablo Belay</p>
+        </div>
+    </div>
+
+    <script>
+        // Diccionario de traducciones
+        const translations = {
+            gl: {
+                "page-title": "Conversor de Libras a Kilogramos de Forza",
+                "conversion-type-label": "Selecciona tipo de conversión:",
+                "libras-label": "Introduce a cantidade en libras de forza (lbf):",
+                "kgf-label": "Introduce a cantidade en kilogramos de forza (kgf):",
+                "convertir": "Converter",
+                "limpiar": "Limpar"
+            },
+            es: {
+                "page-title": "Conversor de Libras a Kilogramos de Fuerza",
+                "conversion-type-label": "Selecciona tipo de conversión:",
+                "libras-label": "Introduce la cantidad en libras de fuerza (lbf):",
+                "kgf-label": "Introduce la cantidad en kilogramos de fuerza (kgf):",
+                "convertir": "Convertir",
+                "limpiar": "Limpiar"
+            },
+            ca: {
+                "page-title": "Conversor de Llibras a Quilograms de Força",
+                "conversion-type-label": "Selecciona tipus de conversió:",
+                "libras-label": "Introdueix la quantitat en llibras de força (lbf):",
+                "kgf-label": "Introdueix la quantitat en quilograms de força (kgf):",
+                "convertir": "Convertir",
+                "limpiar": "Netejar"
+            }
+        };
+
+        // Función para cambiar el idioma
+        function changeLanguage(lang) {
+            const translation = translations[lang];
+            document.getElementById('page-title').innerText = translation["page-title"];
+            document.getElementById('conversion-type-label').innerText = translation["conversion-type-label"];
+            document.getElementById('libras-label').innerText = translation["libras-label"];
+            document.getElementById('kgf-label').innerText = translation["kgf-label"];
+            document.getElementById('convertir').innerText = translation["convertir"];
+            document.getElementById('limpiar').innerText = translation["limpiar"];
+        }
+
+        // Función para realizar la conversión
+        document.getElementById('convertir').onclick = function() {
+            const conversionType = document.getElementById('conversion-type').value;
+
+            if (conversionType === 'lbf-to-kgf') {
+                // Conversión de libras a kilogramos
+                const libras = parseFloat(document.getElementById('libras').value);
+                if (!isNaN(libras) && libras >= 0) {
+                    const kgf = libras * 0.453592;
+                    document.getElementById('resultado').innerText = `${libras} lbf son ${kgf.toFixed(2)} kgf`;
+                } else {
+                    document.getElementById('resultado').innerText = "Por favor, introduce un valor válido.";
+                }
+            } else if (conversionType === 'kgf-to-lbf') {
+                // Conversión de kilogramos a libras
+                const kgf = parseFloat(document.getElementById('kgf').value);
+                if (!isNaN(kgf) && kgf >= 0) {
+                    const libras = kgf * 2.20462;
+                    document.getElementById('resultado').innerText = `${kgf} kgf son ${libras.toFixed(2)} lbf`;
+                } else {
+                    document.getElementById('resultado').innerText = "Por favor, introduce un valor válido.";
+                }
+            }
+        };
+
+        // Función para limpiar los campos
+        document.getElementById('limpiar').onclick = function() {
+            document.getElementById('libras').value = '';
+            document.getElementById('kgf').value = '';
+            document.getElementById('resultado').innerText = '';
+        };
+
+        // Función para mostrar u ocultar los campos de acuerdo con la conversión seleccionada
+        document.getElementById('conversion-type').onchange = function() {
+            const conversionType = this.value;
+
+            if (conversionType === 'lbf-to-kgf') {
+                document.getElementById('lbf-input').style.display = 'block';
+                document.getElementById('kgf-input').style.display = 'none';
+            } else if (conversionType === 'kgf-to-lbf') {
+                document.getElementById('lbf-input').style.display = 'none';
+                document.getElementById('kgf-input').style.display = 'block';
+            }
+        };
+
+        // Obtener el idioma del navegador y cargar la página en ese idioma
+        window.onload = function() {
+            const lang = getUrlParameter('lang') || 'gl';  // Si no hay parámetro, se carga en gallego por defecto
+            changeLanguage(lang);
+
+            // Resaltar la bandera seleccionada
+            document.getElementById('gl').classList.remove('selected');
+            document.getElementById('ca').classList.remove('selected');
+            document.getElementById('es').classList.remove('selected');
+            document.getElementById(lang).classList.add('selected');
+        };
+
+        // Función para obtener el parámetro 'lang' de la URL
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Agregar evento de clic a cada bandera para cambiar el idioma
+        document.getElementById('gl').addEventListener('click', function() { 
+            changeLanguage('gl'); 
+            updateLinks('gl');
+        });
+        document.getElementById('ca').addEventListener('click', function() { 
+            changeLanguage('ca'); 
+            updateLinks('ca');
+        });
+        document.getElementById('es').addEventListener('click', function() { 
+            changeLanguage('es'); 
+            updateLinks('es');
+        });
+
+        // Función para actualizar los enlaces con el parámetro lang
+        function updateLinks(lang) {
+            const links = document.querySelectorAll('.tool-list a');
+            links.forEach(link => {
+                const url = new URL(link.href);
+                url.searchParams.set('lang', lang);  // Establece el parámetro lang en la URL
+                link.href = url.toString();  // Actualiza el enlace con el parámetro lang
+            });
+
+            // Actualiza el enlace del botón "Voltar á Páxina de Ferramentas"
+            const volverLink = document.getElementById('volver-link');
+            const url = new URL(volverLink.href);
+            url.searchParams.set('lang', lang);  // Establece el parámetro lang en la URL
+            volverLink.href = url.toString();  // Actualiza el enlace con el parámetro lang
+        }
+    </script>
+</body>
+</html>

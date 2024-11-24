@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conversor de Pulgadas e Centímetros</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -27,17 +28,53 @@
             background-color: #343a40;
             color: white;
         }
+
+        /* Estilo para el selector de idioma */
+        .language-selector {
+            text-align: center;
+            margin: 20px;
+            background-color: #f0f0f0; /* Fondo gris claro */
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+        }
+
+        .language-selector img {
+            width: 40px;
+            height: 30px;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease; /* Transición suave */
+        }
+
+        /* Efecto hover sobre las banderas */
+        .language-selector img:hover {
+            transform: scale(1.1); /* Agranda ligeramente la bandera al pasar el ratón */
+        }
+
+        .language-selector img.selected {
+            border: 2px solid #007bff;
+        }
+
     </style>
 </head>
 <body>
+    <!-- Selector de idioma con banderas -->
+    <div class="language-selector">
+        <p><strong>Selecciona idioma:</strong></p>
+        <img src="../flagGalicia.png" id="gl" alt="Galego" title="Galego">
+        <img src="../flagCatalonia.png" id="ca" alt="Català" title="Català">
+        <img src="../flagSpain.png" id="es" alt="Español" title="Español">
+    </div>
+
     <div class="container">
-        <h1 class="text-center">Conversor de Pulgadas e Centímetros</h1>
+        <h1 class="text-center" id="page-title">Conversor de Pulgadas e Centímetros</h1>
 
         <!-- Conversor de Pulgadas a Centímetros -->
         <div class="mb-5">
-            <h2>Pulgadas a Centímetros</h2>
+            <h2 id="pulgadas-title">Pulgadas a Centímetros</h2>
             <div class="form-group">
-                <label for="pulgadas">Introduce a medida en polgadas:</label>
+                <label for="pulgadas" id="pulgadas-label">Introduce a medida en polgadas:</label>
                 <input type="number" id="pulgadas" class="form-control" placeholder="Pulgadas" min="0">
             </div>
             <button id="convertirPulgadas" class="btn btn-primary">Converter</button>
@@ -47,9 +84,9 @@
 
         <!-- Conversor de Centímetros a Pulgadas -->
         <div>
-            <h2>Centímetros a Pulgadas</h2>
+            <h2 id="centimetros-title">Centímetros a Pulgadas</h2>
             <div class="form-group">
-                <label for="centimetros">Introduce a medida en centímetros:</label>
+                <label for="centimetros" id="centimetros-label">Introduce a medida en centímetros:</label>
                 <input type="number" id="centimetros" class="form-control" placeholder="Centímetros" min="0">
             </div>
             <button id="convertirCentimetros" class="btn btn-primary">Converter</button>
@@ -58,7 +95,7 @@
         </div>
 
         <!-- Botón para volver á páxina de ferramentas -->
-        <a href="../index.html" class="btn btn-secondary mt-3">Voltar á Páxina de Ferramentas</a>
+        <a href="../index.html" class="btn btn-secondary mt-3" id="volver-link">Voltar á Páxina de Ferramentas</a>
     </div>
 
     <div class="footer">
@@ -66,6 +103,7 @@
     </div>
 
     <script>
+
         // Función para converter polgadas a centímetros
         document.getElementById('convertirPulgadas').onclick = function() {
             const pulgadas = parseFloat(document.getElementById('pulgadas').value);
@@ -99,6 +137,112 @@
             document.getElementById('centimetros').value = '';
             document.getElementById('resultadoCentimetros').innerText = '';
         };
+        // Diccionario de traducciones
+        const translations = {
+            gl: {
+                "page-title": "Conversor de Pulgadas e Centímetros",
+                "pulgadas-title": "Pulgadas a Centímetros",
+                "centimetros-title": "Centímetros a Pulgadas",
+                "pulgadas-label": "Introduce a medida en polgadas:",
+                "centimetros-label": "Introduce a medida en centímetros:",
+                "convertirPulgadas": "Converter",
+                "convertirCentimetros": "Converter",
+                "limpiarPulgadas": "Limpar",
+                "limpiarCentimetros": "Limpar",
+                "volver-link": "Voltar á Páxina de Ferramentas"
+            },
+            es: {
+                "page-title": "Conversor de Pulgadas y Centímetros",
+                "pulgadas-title": "Pulgadas a Centímetros",
+                "centimetros-title": "Centímetros a Pulgadas",
+                "pulgadas-label": "Introduce la medida en pulgadas:",
+                "centimetros-label": "Introduce la medida en centímetros:",
+                "convertirPulgadas": "Convertir",
+                "convertirCentimetros": "Convertir",
+                "limpiarPulgadas": "Limpiar",
+                "limpiarCentimetros": "Limpiar",
+                "volver-link": "Volver a la Página de Herramientas"
+            },
+            ca: {
+                "page-title": "Conversor de Polzades i Centímetres",
+                "pulgadas-title": "Polzades a Centímetres",
+                "centimetros-title": "Centímetres a Polzades",
+                "pulgadas-label": "Introdueix la mesura en polzades:",
+                "centimetros-label": "Introdueix la mesura en centímetres:",
+                "convertirPulgadas": "Convertir",
+                "convertirCentimetros": "Convertir",
+                "limpiarPulgadas": "Netejar",
+                "limpiarCentimetros": "Netejar",
+                "volver-link": "Tornar a la Pàgina d'Eines"
+            }
+        };
+
+        // Función para cambiar el idioma
+        function changeLanguage(lang) {
+            const translation = translations[lang];
+            document.getElementById('page-title').innerText = translation["page-title"];
+            document.getElementById('pulgadas-title').innerText = translation["pulgadas-title"];
+            document.getElementById('centimetros-title').innerText = translation["centimetros-title"];
+            document.getElementById('pulgadas-label').innerText = translation["pulgadas-label"];
+            document.getElementById('centimetros-label').innerText = translation["centimetros-label"];
+            document.getElementById('convertirPulgadas').innerText = translation["convertirPulgadas"];
+            document.getElementById('convertirCentimetros').innerText = translation["convertirCentimetros"];
+            document.getElementById('limpiarPulgadas').innerText = translation["limpiarPulgadas"];
+            document.getElementById('limpiarCentimetros').innerText = translation["limpiarCentimetros"];
+            document.getElementById('volver-link').innerText = translation["volver-link"];
+            updateLinks(lang);
+        }
+
+        // Función para actualizar los enlaces con el parámetro lang
+        function updateLinks(lang) {
+            const links = document.querySelectorAll('.tool-list a');
+            links.forEach(link => {
+                const url = new URL(link.href);
+                url.searchParams.set('lang', lang);  // Establece el parámetro lang en la URL
+                link.href = url.toString();  // Actualiza el enlace con el parámetro lang
+            });
+
+            // Actualiza el enlace del botón "Voltar á Páxina de Ferramentas"
+            const volverLink = document.getElementById('volver-link');
+            const url = new URL(volverLink.href);
+            url.searchParams.set('lang', lang);  // Establece el parámetro lang en la URL
+            volverLink.href = url.toString();  // Actualiza el enlace con el parámetro lang
+        }
+
+        // Función para obtener el idioma preferido del navegador
+        function getBrowserLanguage() {
+            const language = navigator.language || navigator.userLanguage;
+            const lang = language.split('-')[0]; // Solo toma la parte del idioma (sin región)
+            return lang;
+        }
+
+        // Obtener el idioma del navegador y cargar la página en ese idioma
+        window.onload = function() {
+            const lang = getBrowserLanguage();  // Obtiene el idioma del navegador
+            const supportedLanguages = ['gl', 'es', 'ca'];  // Idiomas soportados
+            const langToUse = supportedLanguages.includes(lang) ? lang : 'gl';  // Si no está en los idiomas soportados, usa 'gl'
+            changeLanguage(langToUse);
+
+            // Resaltar la bandera seleccionada
+            document.getElementById('gl').classList.remove('selected');
+            document.getElementById('ca').classList.remove('selected');
+            document.getElementById('es').classList.remove('selected');
+            document.getElementById(langToUse).classList.add('selected');
+        };
+
+        // Agregar evento de clic a cada bandera para cambiar el idioma
+        document.getElementById('gl').addEventListener('click', function() { 
+            changeLanguage('gl'); 
+            updateLinks('gl');
+        });
+        document.getElementById('ca').addEventListener('click', function() { 
+            changeLanguage('ca'); 
+            updateLinks('ca');
+        });
+        document.getElementById('es').addEventListener('click', function() { 
+            changeLanguage('es'); 
+            updateLinks('es');
+        });
     </script>
 </body>
 </html>

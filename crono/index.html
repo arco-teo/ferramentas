@@ -48,29 +48,49 @@
             font-size: 1.5rem;
             color: #007bff;
         }
+        .language-selector {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .language-selector img {
+            width: 40px;
+            height: 30px;
+            margin: 0 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="sidebar" id="configMenu">
+       
+
         <button id="toggleConfig" class="btn btn-secondary">Ocultar Opcións</button>
-        <h2>Información</h2>
+
+         <!-- Selector de idioma con banderas -->
+         <div class="language-selector">
+            <p><strong>Selecciona idioma:</strong></p>
+            <img src="../flagGalicia.png" id="gl" alt="Galego" title="Galego">
+            <img src="../flagCatalonia.png" id="ca" alt="Català" title="Català">
+            <img src="../flagSpain.png" id="es" alt="Español" title="Español">
+        </div>
+        <h2 id="info-title">Información</h2>
         <p id="turno">Turno: A-B</p>
         <p id="ronda">Ronda: 1</p>
         
-        <h2>Configuración</h2>
+        <h2 id="config-title">Configuración</h2>
         <div class="form-group">
-            <label for="seguridade">Tempo de seguridade (segundos):</label>
-            <input type="number" id="seguridade" class="form-control" placeholder="Segundos" min="1">
+            <label for="seguridade" id="seguridade-label">Tempo de seguridade (segundos):</label>
+            <input type="number" id="seguridade" class="form-control" placeholder="Segundos" min="1" value="10">
         </div>
         <div class="form-group">
-            <label for="tirada">Tempo de tirada (segundos):</label>
-            <input type="number" id="tirada" class="form-control" placeholder="Segundos" min="1">
+            <label for="tirada" id="tirada-label">Tempo de tirada (segundos):</label>
+            <input type="number" id="tirada" class="form-control" placeholder="Segundos" min="1" value="90">
         </div>
 
-        <h2>Opcións</h2>
+        <h2 id="options-title">Opcións</h2>
         <div>
-            <label><input type="radio" name="turno" value="AB" checked>A-B</label><br>
-            <label><input type="radio" name="turno" value="ABCD">A-B-C-D</label>
+            <label><input type="radio" name="turno" value="AB" checked id="turno-ab">A-B</label><br>
+            <label><input type="radio" name="turno" value="ABCD" id="turno-abcd">A-B-C-D</label>
         </div>
 
         <button id="play" class="btn btn-primary">Xogar</button>
@@ -78,11 +98,15 @@
     </div>
 
     <div class="main">
-        <h2 id="timerTitle">Tempo de Seguridade</h2> <!-- Título dinámico -->
+        <h2 id="timerTitle">Tempo de Seguridade</h2>
         <div id="timerDisplay">00:00</div>
         <button id="next" class="btn btn-success" style="display:none;">Siguiente</button>
+<<<<<<< HEAD
         <button id="finTurno" class="btn btn-warning" style="display:none;">Fin do turno</button>
         <i class="fas fa-cog config-icon" id="showConfig" style="display:none;" title="Mostrar Configuración"></i> <!-- Icono para mostrar configuración -->
+=======
+        <i class="fas fa-cog config-icon" id="showConfig" style="display:none;" title="Mostrar Configuración"></i>
+>>>>>>> af3f4dce17a124d46cd9794183f82a731f7b3173
     </div>
 
     <div class="footer">
@@ -90,6 +114,86 @@
     </div>
 
     <script>
+//Logica para traducir
+ // Diccionario de traducciones
+ const translations = {
+            gl: {
+                "info-title": "Información",
+                "turno": "Turno: A-B",
+                "ronda": "Ronda: 1",
+                "config-title": "Configuración",
+                "seguridade-label": "Tempo de seguridade (segundos):",
+                "tirada-label": "Tempo de tirada (segundos):",
+                "options-title": "Opcións",
+                "turno-ab": "A-B",
+                "turno-abcd": "A-B-C-D",
+                "play": "Xogar",
+                "stop": "Parar",
+                "timerTitle": "Tempo de Seguridade"
+            },
+            es: {
+                "info-title": "Información",
+                "turno": "Turno: A-B",
+                "ronda": "Ronda: 1",
+                "config-title": "Configuración",
+                "seguridade-label": "Tiempo de seguridad (segundos):",
+                "tirada-label": "Tiempo de tirada (segundos):",
+                "options-title": "Opciones",
+                "turno-ab": "A-B",
+                "turno-abcd": "A-B-C-D",
+                "play": "Jugar",
+                "stop": "Parar",
+                "timerTitle": "Tiempo de Seguridad"
+            },
+            ca: {
+                "info-title": "Informació",
+                "turno": "Torn: A-B",
+                "ronda": "Ronda: 1",
+                "config-title": "Configuració",
+                "seguridade-label": "Temps de seguretat (segons):",
+                "tirada-label": "Temps de tirada (segons):",
+                "options-title": "Opcions",
+                "turno-ab": "A-B",
+                "turno-abcd": "A-B-C-D",
+                "play": "Jugar",
+                "stop": "Parar",
+                "timerTitle": "Temps de Seguretat"
+            }
+        };
+
+        // Función para cambiar el idioma
+        function changeLanguage(lang) {
+            const translation = translations[lang];
+            document.getElementById('info-title').innerText = translation["info-title"];
+            document.getElementById('turno').innerText = translation["turno"];
+            document.getElementById('ronda').innerText = translation["ronda"];
+            document.getElementById('config-title').innerText = translation["config-title"];
+            document.getElementById('seguridade-label').innerText = translation["seguridade-label"];
+            document.getElementById('tirada-label').innerText = translation["tirada-label"];
+            document.getElementById('options-title').innerText = translation["options-title"];
+            document.getElementById('turno-ab').nextSibling.textContent = translation["turno-ab"];
+            document.getElementById('turno-abcd').nextSibling.textContent = translation["turno-abcd"];
+            document.getElementById('play').innerText = translation["play"];
+            document.getElementById('stop').innerText = translation["stop"];
+            document.getElementById('timerTitle').innerText = translation["timerTitle"];
+        }
+
+        // Agregar evento de clic a cada bandera para cambiar el idioma
+        document.getElementById('gl').addEventListener('click', function() { changeLanguage('gl'); });
+        document.getElementById('ca').addEventListener('click', function() { changeLanguage('ca'); });
+        document.getElementById('es').addEventListener('click', function() { changeLanguage('es'); });
+
+// Obtener el parámetro 'lang' de la URL
+function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Cambiar el idioma automáticamente según el parámetro en la URL
+        const lang = getUrlParameter('lang') || 'gl';  // Por defecto se carga en gallego si no se especifica
+        changeLanguage(lang);
+
+//Logica para o cronómetro
         let rondaActual = 1;
         let turnoActual = 'AB';
         let enCurso = false;
