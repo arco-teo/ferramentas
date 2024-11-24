@@ -35,8 +35,6 @@ Mi sugerencia es que cuando estéis diseñando una flecha no os obsesionéis con
 
 ¿Quieres calcular tu FOC para una flecha que ya tienes montada o para una que estás pensando en hacer? He preparado una hoja de cálculo en donde solo tienes que introducir 4 valores muy fáciles: la longitud de la flecha, los grains por pulgada del tubo, el peso de la punta y el peso de culatín y plumas.
 
-Podéis descargar la hoja en este enlace. **[Nota: para evitar el molesto mensaje de "abierto como solo lectura" hay que descargarlo en el disco duro del ordenador y luego abrirlo. Si se abre directamente al pinchar en el enlace, muy probablemente, por seguridad, se abra en modo solo lectura. Si eso ocurre, pueden desactivarlo en el propio programa de hoja de cálculo que se use o al guardarlo.**
-
 Mi consejo sobre el FOC es el siguiente. Entiende el concepto y cómo se calcula, asegúrate de no pensar en flechas que tengan FOC de entrada muy extremo (menos de 8% y más de 25%) y haz pruebas hasta que una flecha te vuele genial y se clave un poco más profundamente que otras. Entonces ve a la calculadora y obtén el FOC para esa flecha y anótalo para futuras referencias, pero no diseñes de inicio una flecha pensando en un FOC concreto porque estarás perdiendo el tiempo. Hay cosas más importantes; el FOC es parte de la optimización, no del diseño base de una flecha.
 
 ---
@@ -74,5 +72,3 @@ Pablo Ruiz-Múzquiz "diacritica"
 
 Arquero desde 2013, volcado en el 3D/Bosque, flatbows modernos y arcos históricos. Secretario de SIAH - Sociedad Ibérica de Arquería Histórica. Técnico Deportivo Nivel 1 (también Monitor RFETA).
 
-Madrid/London  
-Página web

@@ -81,6 +81,7 @@
         <h2 id="timerTitle">Tempo de Seguridade</h2> <!-- Título dinámico -->
         <div id="timerDisplay">00:00</div>
         <button id="next" class="btn btn-success" style="display:none;">Siguiente</button>
+        <button id="finTurno" class="btn btn-warning" style="display:none;">Fin do turno</button>
         <i class="fas fa-cog config-icon" id="showConfig" style="display:none;" title="Mostrar Configuración"></i> <!-- Icono para mostrar configuración -->
     </div>
 
@@ -97,7 +98,7 @@
         let contaAtras;
 
         function actualizarDisplay() {
-            document.getElementById('turno').innerText = `Turno: ${turnoActual}`;
+            document.getElementById('tu bip()rno').innerText = `Turno: ${turnoActual}`;
             document.getElementById('ronda').innerText = `Ronda: ${rondaActual}`;
         }
 
@@ -136,6 +137,7 @@
             bip();
             iniciarContaAtras(tempoSeguridade, () => {
                 bip();
+                document.getElementById('finTurno').style.display = 'inline-block';
                 iniciarContaAtras(tempoTirada, () => {
                     bip();
                     document.getElementById('next').style.display = 'inline-block';
@@ -145,6 +147,15 @@
         }
 
         document.getElementById('play').onclick = xogar;
+
+
+        document.getElementById('finTurno').onclick = function () {
+            clearInterval(contaAtras);
+            document.getElementById('timerDisplay').innerText = '00:00';
+            this.style.display = 'none';  // Oculta o botón "Fin do turno"
+            bip();
+            document.getElementById('next').style.display = 'inline-block'; // Mostra o botón "Siguiente"
+        };
 
         document.getElementById('next').onclick = function () {
             clearInterval(contaAtras);
