@@ -58,6 +58,19 @@
             margin: 0 10px;
             cursor: pointer;
         }
+        #timerContainer {
+    display: flex;
+    align-items: center; /* Aliña elementos verticalmente no centro */
+    justify-content: center; /* Centra horizontalmente no contedor */
+    margin: 20px 0;
+}
+
+#timerDisplay {
+    font-size: 12rem; /* Tamaño grande para o cronómetro */
+    text-align: center;
+    width: auto; /* Permitir axuste automático do ancho */
+}
+
     </style>
 </head>
 <body>
@@ -98,8 +111,14 @@
     </div>
 
     <div class="main">
+
         <h2 id="timerTitle">Tempo de Seguridade</h2>
-        <div id="timerDisplay">00:00</div>
+        <div id="timerContainer" style="display: flex; align-items: center; justify-content: center;">
+
+             <div id="semaforo" style="width: 150px; height: 150px; border-radius: 50%; background-color: red; margin: 20px 0;"></div>
+             <div id="timerDisplay">00:00</div>
+         </div>
+
         <button id="next" class="btn btn-success" style="display:none;">Siguiente</button>
         <button id="finTurno" class="btn btn-warning" style="display:none;">Fin do turno</button>
         <i class="fas fa-cog config-icon" id="showConfig" style="display:none;" title="Mostrar Configuración"></i> <!-- Icono para mostrar configuración -->
@@ -199,9 +218,14 @@ function getUrlParameter(name) {
         let contaAtras;
 
         function actualizarDisplay() {
-            document.getElementById('tu bip()rno').innerText = `Turno: ${turnoActual}`;
+            document.getElementById('turno').innerText = `Turno: ${turnoActual}`;
             document.getElementById('ronda').innerText = `Ronda: ${rondaActual}`;
         }
+
+        function actualizarSemaforo(cor) {
+             document.getElementById('semaforo').style.backgroundColor = cor;   
+        }
+
 
         function bip() {
             const audio = new Audio('beep-01a.mp3');
@@ -209,20 +233,37 @@ function getUrlParameter(name) {
         }
 
         function iniciarContaAtras(duracion, aoCompletar, titulo) {
-            document.getElementById('timerTitle').innerText = titulo; // Cambiar título segundo a fase
-            let tempoRestante = duracion;
-            contaAtras = setInterval(() => {
-                if (tempoRestante <= 0) {
-                    clearInterval(contaAtras);
-                    aoCompletar();
-                    return;
-                }
-                tempoRestante--;
-                const minutos = Math.floor(tempoRestante / 60);
-                const segundos = tempoRestante % 60;
-                document.getElementById('timerDisplay').innerText = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
-            }, 1000);
+    document.getElementById('timerTitle').innerText = titulo; // Cambiar título segundo a fase
+    let tempoRestante = duracion;
+    
+    // Configurar o semáforo segundo o título
+    if (titulo === "Tempo de Seguridade") {
+        actualizarSemaforo('red'); // Vermello para o tempo de seguridade
+    } else {
+        actualizarSemaforo('green'); // Verde por defecto para o tempo de tirada
+    }
+
+    contaAtras = setInterval(() => {
+        if (tempoRestante <= 0) {
+            clearInterval(contaAtras);
+            aoCompletar();
+            return;
         }
+        tempoRestante--;
+        
+        // Actualizar o semáforo se estamos no tempo de tirada
+        if (titulo === "Tempo" && tempoRestante <= 15) {
+            actualizarSemaforo('yellow'); // Amarelo se quedan 15 segundos ou menos
+        }
+        if (titulo === "Tempo" && tempoRestante === 0) {
+            actualizarSemaforo('red'); // Vermello cando chega a 0
+        }
+
+        const minutos = Math.floor(tempoRestante / 60);
+        const segundos = tempoRestante % 60;
+        document.getElementById('timerDisplay').innerText = `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+    }, 1000);
+}
 
         function xogar() {
             if (enCurso) return;
@@ -259,27 +300,32 @@ function getUrlParameter(name) {
         };
 
         document.getElementById('next').onclick = function () {
-            clearInterval(contaAtras);
-            document.getElementById('timerDisplay').innerText = '00:00';
-            this.style.display = 'none';  // Oculta o botón "Siguiente"
+    clearInterval(contaAtras); // Detén calquera temporizador en curso
+    document.getElementById('timerDisplay').innerText = '00:00'; // Reinicia o cronómetro
+    this.style.display = 'none'; // Oculta o botón "Siguiente"
 
-            // Lógica para actualizar turno e ronda
-            if (document.querySelector('input[name="turno"]:checked').value === 'ABCD') {
-                rondaActual++;
-                turnoActual = rondaActual % 2 === 0 ? 'C-D' : 'A-B';
-            } else {
-                if (turnoActual === 'A-B') {
-                    turnoActual = 'C-D';
-                } else {
-                    rondaActual++;
-                    turnoActual = 'A-B';
-                }
-            }
-            actualizarDisplay();
+    // Lóxica para actualizar turno e ronda
+    if (document.querySelector('input[name="turno"]:checked').value === 'ABCD') {
+        if (turnoActual === 'A-B') {
+            turnoActual = 'C-D'; // Cambia a C-D
+        } else {
+            turnoActual = 'A-B'; // Cambia de volta a A-B
+            rondaActual++; // Incrementa a ronda só despois de C-D
+        }
+    } else { // Para o modo A-B
+        if (turnoActual === 'A-B') {
+            turnoActual = 'C-D'; // Cambia a C-D
+        } else {
+            turnoActual = 'A-B'; // Cambia de volta a A-B
+            rondaActual++; // Incrementa a ronda só despois de completar un ciclo
+        }
+    }
 
-            // Inicia o xogo novamente
-            xogar(); 
-        };
+    actualizarDisplay(); // Actualiza os datos no contedor de información
+
+    // Inicia o xogo novamente co novo turno
+    xogar();
+};          
 
         document.getElementById('stop').onclick = function () {
             clearInterval(contaAtras);
