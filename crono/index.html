@@ -71,6 +71,30 @@
     width: auto; /* Permitir axuste automático do ancho */
 }
 
+
+ /* Modo escuro */
+ body.dark-mode {
+            background-color: #121212; /* Fondo negro para o corpo */
+            color: #e0e0e0; /* Texto claro */
+        }
+
+        .sidebar.dark-mode {
+            background-color: #333; /* Fondo escuro na barra lateral */
+        }
+
+        .main.dark-mode {
+            background-color: #121212; /* Fondo escuro no contido */
+        }
+
+        .btn-dark-mode {
+            background-color: #444; /* Fondo oscuro para os botones */
+            color: #fff;
+        }
+
+        .btn-dark-mode:hover {
+            background-color: #555; /* Fondo ao pasar o rato sobre o botón */
+        }
+
     </style>
 </head>
 <body>
@@ -78,6 +102,8 @@
        
 
         <button id="toggleConfig" class="btn btn-secondary">Ocultar Opcións</button>
+        <button id="darkModeToggle" class="btn btn-dark">Modo Oscuro</button> <!-- Botón de Modo Oscuro -->
+
 
          <!-- Selector de idioma con banderas -->
          <div class="language-selector">
@@ -364,6 +390,19 @@ function getUrlParameter(name) {
                 mainContent.style.alignItems = 'flex-start';
             }
         }
+
+
+         // Lóxica para cambiar a modo oscuro
+         document.getElementById('darkModeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const sidebar = document.querySelector('.sidebar');
+            const main = document.querySelector('.main');
+            sidebar.classList.toggle('dark-mode');
+            main.classList.toggle('dark-mode');
+            this.classList.toggle('btn-dark');
+            this.classList.toggle('btn-light');
+            this.innerText = document.body.classList.contains('dark-mode') ? 'Modo Claro' : 'Modo Oscuro';
+        });
     </script>
 </body>
 </html>
