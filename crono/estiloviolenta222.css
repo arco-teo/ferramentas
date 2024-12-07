@@ -1,0 +1,79 @@
+  /* Estilo violeta */
+  body {
+    display: flex;
+    overflow: hidden;
+    background-color: #5e4b8b; /* Fondo violeta escuro */
+    color: #f4e1f4; /* Texto en cor violeta claro */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar {
+    width: 300px;
+    padding: 15px;
+    background-color: #442f6b; /* Fondo violeta máis escuro para a barra lateral */
+    transition: transform 0.3s ease;
+    position: relative;
+    color: #fff; /* Texto branco na barra lateral */
+}
+
+.main {
+    flex: 1;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #5e4b8b; /* Fondo violeta escuro no contido */
+    color: #fff; /* Texto branco no contido */
+    transition: all 0.3s ease;
+}
+
+#timerDisplay {
+    font-size: 12rem;
+    margin: 20px 0;
+    width: 100%;
+    text-align: center;
+    color: #fff; /* Cor do texto no cronómetro */
+}
+
+.hidden {
+    transform: translateX(-100%);
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/* Modo escuro en violeta */
+body.dark-mode {
+    background-color: #3a2763; /* Fondo máis escuro para o modo escuro */
+    color: #d1c4e9; /* Texto claro para o modo escuro */
+}
+
+.sidebar.dark-mode {
+    background-color: #321f47; /* Fondo escuro na barra lateral para o modo escuro */
+}
+
+.main.dark-mode {
+    background-color: #3a2763; /* Fondo escuro no contido para o modo escuro */
+}
+
+.btn-dark-mode {
+    background-color: #7b5a98; /* Fondo violeta claro para os botóns */
+    color: #fff;
+}
+
+.btn-dark-mode:hover {
+    background-color: #6a4d89; /* Fondo máis escuro cando o rato pasa por encima */
+}
+
+.btn-primary {
+    background-color: #7b5a98; /* Botón violeta claro */
+    border-color: #6a4d89; /* Bordo un pouco máis escuro */
+}
+
+.btn-primary:hover {
+    background-color: #6a4d89; /* Fondo máis escuro cando o rato pasa por encima */
+}

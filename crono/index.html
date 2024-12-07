@@ -59,10 +59,10 @@
             cursor: pointer;
         }
         #timerContainer {
-    display: flex;
-    align-items: center; /* Aliña elementos verticalmente no centro */
-    justify-content: center; /* Centra horizontalmente no contedor */
-    margin: 20px 0;
+            display: flex;
+            align-items: center; /* Aliña elementos verticalmente no centro */
+            justify-content: center; /* Centra horizontalmente no contedor */
+            margin: 20px 0;
 }
 
 #timerDisplay {
@@ -72,37 +72,15 @@
 }
 
 
- /* Modo escuro */
- body.dark-mode {
-            background-color: #121212; /* Fondo negro para o corpo */
-            color: #e0e0e0; /* Texto claro */
-        }
-
-        .sidebar.dark-mode {
-            background-color: #333; /* Fondo escuro na barra lateral */
-        }
-
-        .main.dark-mode {
-            background-color: #121212; /* Fondo escuro no contido */
-        }
-
-        .btn-dark-mode {
-            background-color: #444; /* Fondo oscuro para os botones */
-            color: #fff;
-        }
-
-        .btn-dark-mode:hover {
-            background-color: #555; /* Fondo ao pasar o rato sobre o botón */
-        }
-
     </style>
+    <link rel="stylesheet" type="text/css" href="estilodark.css ">
+
 </head>
 <body>
     <div class="sidebar" id="configMenu">
        
 
         <button id="toggleConfig" class="btn btn-secondary">Ocultar Opcións</button>
-        <button id="darkModeToggle" class="btn btn-dark">Modo Oscuro</button> <!-- Botón de Modo Oscuro -->
 
 
          <!-- Selector de idioma con banderas -->
@@ -131,6 +109,9 @@
             <label><input type="radio" name="turno" value="AB" checked id="turno-ab">A-B</label><br>
             <label><input type="radio" name="turno" value="ABCD" id="turno-abcd">A-B-C-D</label>
         </div>
+
+        <button id="darkModeToggle" class="btn btn-secondary">Modo Oscuro</button> <!-- Botón de Modo Oscuro -->
+        
 
         <button id="play" class="btn btn-primary">Xogar</button>
         <button id="stop" class="btn btn-danger" style="display:none;">Parar</button>
@@ -402,6 +383,33 @@ function getUrlParameter(name) {
             this.classList.toggle('btn-dark');
             this.classList.toggle('btn-light');
             this.innerText = document.body.classList.contains('dark-mode') ? 'Modo Claro' : 'Modo Oscuro';
+        });
+
+
+         // Cambiar estilo cando se selecciona no combo box
+         document.getElementById('styleSelector').addEventListener('change', function() {
+            const selectedStyle = this.value;
+
+            // Remover clases de estilos anteriores
+            document.body.classList.remove('dark-mode', 'violet-mode');
+            document.querySelector('.sidebar').classList.remove('dark-mode', 'violet-mode');
+            document.querySelector('.main').classList.remove('dark-mode', 'violet-mode');
+
+            // Aplicar o novo estilo
+            if (selectedStyle === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.sidebar').classList.add('dark-mode');
+                document.querySelector('.main').classList.add('dark-mode');
+            } else if (selectedStyle === 'violet') {
+                document.body.classList.add('violet-mode');
+                document.querySelector('.sidebar').classList.add('violet-mode');
+                document.querySelector('.main').classList.add('violet-mode');
+            } else {
+                // Estilo claro por defecto
+                document.body.classList.remove('dark-mode', 'violet-mode');
+                document.querySelector('.sidebar').classList.remove('dark-mode', 'violet-mode');
+                document.querySelector('.main').classList.remove('dark-mode', 'violet-mode');
+            }
         });
     </script>
 </body>
