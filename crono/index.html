@@ -216,7 +216,7 @@ function getUrlParameter(name) {
 
 //Logica para o cronómetro
         let rondaActual = 1;
-        let turnoActual = 'AB';
+        let turnoActual = 'A-B';
         let enCurso = false;
         let tempoSeguridade = 0;
         let tempoTirada = 0;
@@ -249,9 +249,13 @@ function getUrlParameter(name) {
     }
 
     contaAtras = setInterval(() => {
-        if (tempoRestante <= 0) {
+        if (tempoRestante <= 1) {
             clearInterval(contaAtras);
             aoCompletar();
+            if(titulo === "Tempo"){
+                actualizarSemaforo('red'); // Vermello cando chega a 0
+                document.getElementById('timerDisplay').innerText = '00:00';
+            }
             return;
         }
         tempoRestante--;
@@ -260,9 +264,9 @@ function getUrlParameter(name) {
         if (titulo === "Tempo" && tempoRestante <= 15) {
             actualizarSemaforo('yellow'); // Amarelo se quedan 15 segundos ou menos
         }
-        if (titulo === "Tempo" && tempoRestante === 0) {
-            actualizarSemaforo('red'); // Vermello cando chega a 0
-        }
+        //if (titulo === "Tempo" && tempoRestante === 0) {
+        //    actualizarSemaforo('red'); // Vermello cando chega a 0
+        //}
 
         const minutos = Math.floor(tempoRestante / 60);
         const segundos = tempoRestante % 60;
@@ -282,8 +286,16 @@ function getUrlParameter(name) {
             document.querySelectorAll('input[name="turno"]').forEach(radio => radio.disabled = true);
             bip();
             bip();
+            //Inicizaliza cronometro seguridade o valor inicial
+            const minutosSeguridade = Math.floor(tempoSeguridade / 60);
+            const segundosSeguridade = tempoSeguridade % 60;
+            document.getElementById('timerDisplay').innerText = `${String(minutosSeguridade).padStart(2, '0')}:${String(segundosSeguridade).padStart(2, '0')}`;
+
             iniciarContaAtras(tempoSeguridade, () => {
                 bip();
+                const minutosTirada = Math.floor(tempoTirada / 60);
+                const segundosTirada = tempoTirada % 60;
+                document.getElementById('timerDisplay').innerText = `${String(minutosTirada).padStart(2, '0')}:${String(segundosTirada).padStart(2, '0')}`;
             //    document.getElementById('finTurno').style.display = 'inline-block';
                 iniciarContaAtras(tempoTirada, () => {
                     bip();
