@@ -105,10 +105,10 @@
             <li><a href="conver-lib-kg/index.html" class="btn btn-outline-primary btn-lg btn-block" id="lib-to-kg-tool">Conversor de Libras a Kg</a></li>
         </ul>
 
-        <h2 id="tools-title">Ferramentas Externas</h2>
+        <h2 id="tools-externas">Ferramentas Externas</h2>
          <ul class="tool-list">
-              <li><a   target="_blank" href="https://rcore.co/the-stay-at-home-target-face-generator/" class="btn btn-outline-primary btn-lg btn-block" id="external-tool1">Xerador de Dianas a distintas distancias</a></li>
-              <li><a target="_blank"  href="https://www.sichtkraft.com/2017/03/22/70%E2%80%AFm-indoor-simulation-free-practice-target-face-downloads/" class="btn btn-outline-primary btn-lg btn-block" id="external-tool1">Simulación en interiores de 70 m </a></li>
+              <li><a   target="_blank" href="https://rcore.co/the-stay-at-home-target-face-generator/" class="btn btn-outline-primary btn-lg btn-block" id="external-target">Xerador de Dianas a distintas distancias</a></li>
+              <li><a target="_blank"  href="https://www.sichtkraft.com/2017/03/22/70%E2%80%AFm-indoor-simulation-free-practice-target-face-downloads/" class="btn btn-outline-primary btn-lg btn-block" id="external-target70">Simulación en interiores de 70 m </a></li>
          </ul>
     </div>
 
@@ -130,7 +130,10 @@
                 "timer-tool": "Cronómetro",
                 "inch-to-cm-tool": "Conversor de Pulgadas a Cm",
                 "lib-to-kg-tool": "Conversor de Libras a Kg",
-                "foc-tool": "Cálculo FOC"
+                "foc-tool": "Cálculo FOC",
+                "tools-externas":  "Ferramentas Externas", 
+                "external-target": "Xerador de Dianas a distintas distancias",
+                "external-target70": "Simulación en interiores de 70 m"
             },
             es: {
                 "page-title": "Herramientas de Arco",
@@ -139,7 +142,10 @@
                 "timer-tool": "Cronómetro",
                 "inch-to-cm-tool": "Conversor de Pulgadas a Cm",
                 "lib-to-kg-tool": "Conversor de Libras a Kg",
-                "foc-tool": "Cálculo FOC"
+                "foc-tool": "Cálculo FOC",
+                "tools-externas":  "Herramientas Externas", 
+                "external-target": "Generador de Dianas a distintas distancias",
+                "external-target70": "Simulación en interiores de 70 m"
             },
             ca: {
                 "page-title": "Eines d'Arc",
@@ -148,7 +154,10 @@
                 "timer-tool": "Cronòmetre",
                 "inch-to-cm-tool": "Conversor de Polzades a Cm",
                 "lib-to-kg-tool": "Conversor de Lliures a Kg",
-                "foc-tool": "Càlcul FOC"
+                "foc-tool": "Càlcul FOC", 
+                "tools-externas": "Eines Externes",
+                "external-target": "Generador de Dianes a diferents distàncies",
+                "external-target70": "Simulació en interiors de 70 m"   
             },
             pt: {
                 "page-title": "Ferramentas de Arco",
@@ -157,7 +166,10 @@
                 "timer-tool": "Cronômetro",
                 "inch-to-cm-tool": "Conversor de Polegadas para Cm",
                 "lib-to-kg-tool": "Conversor de Libras para Kg",
-                "foc-tool": "Cálculo FOC"
+                "foc-tool": "Cálculo FOC", 
+                "tools-externas": "Ferramentas Externas",
+                "external-target": "Gerador de Alvos a diferentes distâncias",
+                "external-target70": "Simulação em interiores de 70 m"  
 }
         };
 
@@ -171,6 +183,10 @@
             document.getElementById('inch-to-cm-tool').innerText = translation["inch-to-cm-tool"];
             document.getElementById('lib-to-kg-tool').innerText = translation["lib-to-kg-tool"];
             document.getElementById('foc-tool').innerText = translation["foc-tool"];
+            document.getElementById('foc-tool').innerText = translation["tools-externas"];
+            document.getElementById('external-target').innerText = translation["external-target"];
+            document.getElementById('external-target70').innerText = translation["external-target70"];
+            
         }
 
         // Agregar evento de clic a cada bandera para cambiar el idioma
