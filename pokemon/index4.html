@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pokémon PDF Aleatorio con Fondo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 20px;
+        background: #f5f5f5;
+    }
+    h1 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+    #controls {
+        margin-bottom: 20px;
+    }
+    select, button {
+        padding: 8px 12px;
+        margin-left: 10px;
+        font-size: 14px;
+    }
+    #preview {
+        position: relative;
+        width: 800px;
+        height: 1000px;
+        margin: 0 auto 20px auto;
+        border: 2px solid #ccc;
+        background-size: cover;
+        background-position: center;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .pokemon-card {
+        position: absolute;
+        text-align: center;
+        transition: transform 0.3s;
+    }
+    .pokemon-card:hover {
+        transform: scale(1.1);
+        z-index: 10;
+    }
+    .circle-number {
+        position: absolute;
+        border-radius: 50%;
+        background: red;
+        color: white;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .pokemon-name {
+        position: absolute;
+        font-size: 10px;
+        color: black;
+        width: 100%;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+<h1>Pokémon PDF Aleatorio</h1>
+<div id="controls">
+    <label for="orientation">Orientación:</label>
+    <select id="orientation">
+        <option value="portrait">Vertical</option>
+        <option value="landscape">Horizontal</option>
+    </select>
+    <button id="generate">Previsualizar & PDF</button>
+</div>
+<div id="preview"></div>
+
+<script>
+const btn = document.getElementById('generate');
+const orientationSelect = document.getElementById('orientation');
+const preview = document.getElementById('preview');
+
+const fondosLocales = [
+    'fondos/fondo1.jpg',
+    'fondos/fondo2.jpg',
+    'fondos/fondo3.jpg'
+];
+
+async function fetchPokemons() {
+    const promises = [];
+    const usedIds = new Set();
+    while (usedIds.size < 9) {
+        const randomId = Math.floor(Math.random() * 898) + 1;
+        if (!usedIds.has(randomId)) {
+            usedIds.add(randomId);
+            promises.push(fetch(`https://pokeapi.co/api/v2/pokemon/${randomId}`).then(res => res.json()));
+        }
+    }
+    return Promise.all(promises);
+}
+
+function getUniqueNumbers() {
+    const numbers = Array.from({length: 10}, (_, i) => i + 1);
+    numbers.sort(() => Math.random() - 0.5);
+    return numbers.slice(0, 9);
+}
+
+btn.onclick = async () => {
+    const pokemons = await fetchPokemons();
+    const numbers = getUniqueNumbers();
+    showPreview(pokemons, numbers);
+    generatePDF(pokemons, numbers);
+};
+
+async function showPreview(pokemons, numbers) {
+    preview.innerHTML = '';
+    const fondoAleatorio = fondosLocales[Math.floor(Math.random() * fondosLocales.length)];
+    preview.style.backgroundImage = `url(${fondoAleatorio})`;
+
+    const maxSize = 180;
+    const minSize = 60;
+    const step = (maxSize - minSize) / 9;
+
+    const posiciones = [];
+
+    for (let i = 0; i < pokemons.length; i++) {
+        const num = numbers[i];
+        const size = maxSize - (num - 1) * step;
+
+        let x, y;
+        let intentos = 0;
+        let valido = false;
+
+        while (!valido && intentos < 100) {
+            x = Math.random() * (preview.clientWidth - size - 40) + 20;
+            y = Math.random() * (preview.clientHeight - size - 40) + 20;
+            valido = true;
+            for (const pos of posiciones) {
+                const dx = pos.x - x;
+                const dy = pos.y - y;
+                if (Math.sqrt(dx*dx + dy*dy) < (pos.size/2 + size/2) * 0.9) { valido = false; break; }
+            }
+            intentos++;
+        }
+
+        posiciones.push({x, y, size});
+
+        const card = document.createElement('div');
+        card.className = 'pokemon-card';
+        card.style.left = `${x}px`;
+        card.style.top = `${y}px`;
+        card.style.width = `${size}px`;
+        card.style.height = `${size}px`;
+
+        const img = document.createElement('img');
+        img.src = pokemons[i].sprites.other['official-artwork'].front_default;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+
+        const circle = document.createElement('div');
+        circle.className = 'circle-number';
+        circle.style.width = `${size*0.24}px`;
+        circle.style.height = `${size*0.24}px`;
+        circle.style.top = `-${size*0.12}px`;
+        circle.style.left = `calc(50% - ${size*0.12}px)`;
+        circle.style.fontSize = `${size*0.12}px`;
+        circle.innerText = num;
+
+        const name = document.createElement('div');
+        name.className = 'pokemon-name';
+        name.style.top = `${size + 2}px`;
+        name.innerText = pokemons[i].name.toUpperCase();
+
+        card.appendChild(img);
+        card.appendChild(circle);
+        card.appendChild(name);
+
+        preview.appendChild(card);
+    }
+}
+
+function loadImage(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.src = url;
+    });
+}
+
+async function generatePDF(pokemons, numbers) {
+    const { jsPDF } = window.jspdf;
+    const orientation = orientationSelect.value;
+    const pdf = new jsPDF({orientation: orientation, unit: 'px', format: 'a4'});
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const maxSize = 180;
+    const minSize = 60;
+    const step = (maxSize - minSize) / 9;
+
+    const fondoAleatorio = fondosLocales[Math.floor(Math.random() * fondosLocales.length)];
+    const backgroundImg = await loadImage(fondoAleatorio);
+    pdf.addImage(backgroundImg, 'JPEG', 0, 0, pageWidth, pageHeight);
+
+    const posiciones = [];
+    for (let i = 0; i < pokemons.length; i++) {
+        const imgUrl = pokemons[i].sprites.other['official-artwork'].front_default;
+        const img = await loadImage(imgUrl);
+
+        const num = numbers[i];
+        const size = maxSize - (num - 1) * step;
+
+        let x, y, intentos = 0, valido = false;
+        while (!valido && intentos < 100) {
+            x = Math.random() * (pageWidth - size - 40) + 20;
+            y = Math.random() * (pageHeight - size - 80) + 20;
+            valido = true;
+            for (const pos of posiciones) {
+                const dx = pos.x - x;
+                const dy = pos.y - y;
+                if (Math.sqrt(dx*dx + dy*dy) < (pos.size/2 + size/2)*0.9) { valido = false; break; }
+            }
+            intentos++;
+        }
+        posiciones.push({x, y, size});
+        pdf.addImage(img, 'PNG', x, y, size, size);
+
+        const circleRadius = size*0.12;
+        const circleX = x + size/2;
+        const circleY = y - circleRadius - 5;
+        pdf.setFillColor(255,0,0);
+        pdf.circle(circleX,circleY,circleRadius,'F');
+        pdf.setTextColor(255,255,255);
+        pdf.setFontSize(circleRadius*1.4);
+        pdf.text(String(num), circleX, circleY+circleRadius*0.4, {align:'center'});
+        pdf.setFontSize(8);
+        pdf.setTextColor(0,0,0);
+        pdf.text(pokemons[i].name.toUpperCase(), x+size/2, y+size+10, {align:'center'});
+    }
+
+    pdf.setFontSize(8);
+    pdf.setTextColor(100);
+    pdf.text('diana deseñada por Pablo Belay Fernández (C) - 2025', pageWidth/2, pageHeight-10, {align:'center'});
+    pdf.save('pokemons.pdf');
+}
+</script>
+</body>
+</html>
+
