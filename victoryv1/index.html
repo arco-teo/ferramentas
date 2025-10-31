@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="gl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calculadora de calibre (spine) — Recurvo</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:18px;background:#f6f7fb;color:#111}
+    .card{background:#fff;padding:18px;border-radius:8px;box-shadow:0 6px 18px rgba(10,20,40,0.06);max-width:880px;margin:0 auto}
+    label{display:block;margin-top:8px}
+    input[type=number],select{padding:8px;border-radius:6px;border:1px solid #ddd;width:160px}
+    button{padding:8px 12px;border-radius:8px;border:none;background:#0066cc;color:#fff;cursor:pointer}
+    .result{margin-top:12px;padding:12px;border-radius:6px;background:#eef6ff}
+    table{border-collapse:collapse;width:100%;margin-top:16px}
+    th,td{border:1px solid #eee;padding:6px;text-align:center}
+    .notice{font-size:13px;color:#555;margin-top:8px}
+    .small{font-size:13px;color:#444}
+    .edit-btn{background:#00a86b;padding:6px 8px;margin-left:8px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Calculadora de calibre (spine) para frechas — Recurvo</h2>
+    <p class="small">Introduce a potencia (libras), a lonxitude da frecha e o peso da punta. A calculadora suxire un spine aproximado baseado na táboa proporcionada e che avisa se estás preto de necesitar un calibre máis duro ou máis brando.</p>
+
+    <div>
+      <label>Potencia (libras):
+        <input id="drawWeight" type="number" min="10" max="120" value="33" />
+      </label>
+      <label>Lonxitude da frecha (pulgadas):
+        <input id="arrowLength" type="number" step="0.1" min="20" max="36" value="27.5" />
+      </label>
+      <label>Peso da punta (grains):
+        <input id="tipWeight" type="number" step="1" min="60" max="200" value="100" />
+      </label>
+      <div style="margin-top:10px">
+        <button id="calc">Calcular calibre</button>
+        <button id="showTable" class="edit-btn">Ver/Editar táboa</button>
+      </div>
+
+      <div id="output" class="result" aria-live="polite" style="display:none"></div>
+      <div class="notice">Nota: os números son aproximados e extraídos da táboa que me facilitaches. Se usas puntas pesadas (≥100 grs) pode ser recomendable un spine máis forte (número menor).</div>
+    </div>
+
+    <div id="tableWrap" style="display:none">
+      <h3 style="margin-top:18px">Táboa editable (rango de libras → spine por lonxitude)</h3>
+      <p class="small">Podes editar calquera célula e logo premer "Gardar táboa" para actualizar os resultados.</p>
+      <div style="overflow:auto">
+        <table id="spineTable">
+          <thead>
+            <tr>
+              <th>Rango LBS</th>
+              <th>22.5"</th>
+              <th>23.5"</th>
+              <th>24.5"</th>
+              <th>25.5"</th>
+              <th>26.5"</th>
+              <th>27.5"</th>
+              <th>28.5"</th>
+              <th>29.5"</th>
+              <th>30.5"</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px">
+        <button id="saveTable">Gardar táboa</button>
+        <button id="hideTable" class="edit-btn">Ocultar táboa</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const defaultTable = [
+      {range:[12,14], row:[1000,1000,1000,1000,900,900,900,800,800]},
+      {range:[14,16], row:[1000,1000,1000,1000,900,900,900,800,800]},
+      {range:[16,18], row:[1000,1000,1000,900,900,900,900,800,800]},
+      {range:[18,22], row:[900,900,900,900,900,900,800,800,800]},
+      {range:[22,26], row:[900,900,900,800,800,800,700,700,700]},
+      {range:[27,31], row:[900,900,800,800,800,700,700,700,600]},
+      {range:[32,36], row:[800,800,800,700,700,700,700,600,600]},
+      {range:[37,41], row:[800,800,700,700,700,700,600,600,500]},
+      {range:[42,46], row:[800,700,700,700,600,600,600,500,500]},
+      {range:[47,51], row:[700,700,700,600,600,600,500,500,450]},
+      {range:[52,56], row:[700,700,600,600,600,500,500,450,450]},
+      {range:[57,61], row:[700,600,600,600,500,500,450,450,400]},
+      {range:[62,66], row:[600,600,500,500,450,450,400,400,350]},
+      {range:[67,72], row:[500,500,450,450,400,400,350,350,300]},
+      {range:[73,78], row:[450,450,450,400,350,350,350,300,300]},
+      {range:[79,84], row:[450,400,400,350,350,350,300,300,300]},
+      {range:[85,90], row:[400,400,350,350,350,300,300,300,250]},
+      {range:[90,95], row:[400,350,350,350,300,300,300,250,250]},
+      {range:[95,100], row:[350,350,350,300,300,300,250,250,250]},
+      {range:[100,105], row:[350,350,350,300,300,300,250,250,200]}
+    ];
+
+    let spineTable = JSON.parse(localStorage.getItem('spineTable')) || defaultTable;
+    const columns = [22.5,23.5,24.5,25.5,26.5,27.5,28.5,29.5,30.5];
+
+    function renderTable(){
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      spineTable.forEach((r, idx) =>{
+        const tr = document.createElement('tr');
+        const rangeTd = document.createElement('td');
+        rangeTd.textContent = r.range[0] + '–' + r.range[1];
+        tr.appendChild(rangeTd);
+        r.row.forEach((val, cIdx)=>{
+          const td = document.createElement('td');
+          const input = document.createElement('input');
+          input.type = 'number'; input.value = val; input.style.width='80px';
+          input.onchange = ()=>{ spineTable[idx].row[cIdx] = Number(input.value); };
+          td.appendChild(input);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    function findRange(draw){
+      for(const r of spineTable){
+        if(draw >= r.range[0] && draw <= r.range[1]) return r;
+      }
+      if(draw < spineTable[0].range[0]) return spineTable[0];
+      return spineTable[spineTable.length-1];
+    }
+
+    function nearestColumn(len){
+      let bestIdx = 0; let bestDiff = Math.abs(len - columns[0]);
+      for(let i=1;i<columns.length;i++){
+        const d = Math.abs(len - columns[i]);
+        if(d < bestDiff){ bestDiff = d; bestIdx = i; }
+      }
+      return bestIdx;
+    }
+
+    function tipAdvice(weight,spine){
+      if(weight > 110){
+        return `Como estás usando puntas pesadas (${weight}gn), poderías considerar baixar a un spine máis duro (~${Math.max(spine-100,300)}).`;
+      } else if(weight < 90){
+        return `Como estás usando puntas lixeiras (${weight}gn), poderías considerar un spine un pouco máis brando (~${spine+100}).`;
+      } else {
+        return `O peso da punta (${weight}gn) está nun rango estándar, polo que o calibre ${spine} debería ser axeitado.`;
+      }
+    }
+
+    document.getElementById('calc').addEventListener('click', ()=>{
+      const draw = Number(document.getElementById('drawWeight').value);
+      const len = Number(document.getElementById('arrowLength').value);
+      const tip = Number(document.getElementById('tipWeight').value);
+      if(isNaN(draw) || isNaN(len) || isNaN(tip)){ alert('Introduce valores válidos'); return; }
+      const row = findRange(draw);
+      const colIdx = nearestColumn(len);
+      const spine = row.row[colIdx];
+      const advice = tipAdvice(tip,spine);
+      const out = document.getElementById('output');
+      out.style.display = 'block';
+      out.innerHTML = `<strong>Recomendación:</strong> <span style="font-size:18px">${spine}</span> spine (lonxitude próxima: ${columns[colIdx]}\")<br><span class="small">Rango de libras: ${row.range[0]}–${row.range[1]} lbs</span><br><em>${advice}</em>`;
+    });
+
+    document.getElementById('showTable').addEventListener('click', ()=>{
+      document.getElementById('tableWrap').style.display = 'block';
+      renderTable();
+    });
+    document.getElementById('hideTable').addEventListener('click', ()=>{ document.getElementById('tableWrap').style.display = 'none'; });
+    document.getElementById('saveTable').addEventListener('click', ()=>{
+      localStorage.setItem('spineTable', JSON.stringify(spineTable));
+      alert('Táboa gardada localmente. Os cálculos usarán estes valores.');
+    });
+
+    renderTable();
+  </script>
+</body>
+</html>
