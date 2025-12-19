@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Tiempo + Estimación</title>
+    <style>
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #222; margin: 0; color: white; text-align: center; }
+        
+        /* --- UTILIDADES --- */
+        .hidden { display: none !important; }
+        .flex-center { display: flex; justify-content: center; align-items: center; }
+        
+        /* --- PANTALLA 1: CONFIGURACIÓN --- */
+        #config-screen { background: #f4f4f4; color: #333; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .config-card { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: left; }
+        
+        h2 { border-bottom: 2px solid #3498db; padding-bottom: 10px; color: #2c3e50; }
+        h3 { color: #7f8c8d; margin-top: 25px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #34495e; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #dfe6e9; border-radius: 6px; font-size: 1rem; box-sizing: border-box; transition: border 0.3s; }
+        input:focus { border-color: #3498db; outline: none; }
+        
+        .btn-primary { 
+            background: linear-gradient(135deg, #2980b9, #2c3e50); color: white; border: none; padding: 18px; 
+            font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 30px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+
+        /* --- PANTALLA 2: RELOJ --- */
+        #timer-screen { height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; box-sizing: border-box; }
+        
+        /* Barra Superior: Info y Hora */
+        .top-stats { display: flex; justify-content: space-between; align-items: center; background: #333; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        .stat-box { text-align: center; }
+        .stat-label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; color: #fff; }
+        .stat-value.highlight { color: #f1c40f; }
+
+        /* Indicador Central */
+        .turn-display { font-size: 4rem; font-weight: 800; color: #3498db; margin: 10px 0; text-transform: uppercase; }
+        
+        /* Semáforo Gigante */
+        .timer-big {
+            flex-grow: 1; display: flex; justify-content: center; align-items: center;
+            font-size: 12rem; font-weight: bold; border-radius: 20px; margin: 10px 0;
+            background-color: #444; color: white; text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            transition: background-color 0.4s ease;
+        }
+
+        /* Colores Estados */
+        .bg-red { background-color: #c0392b; }
+        .bg-green { background-color: #27ae60; }
+        .bg-yellow { background-color: #f1c40f; color: #222 !important; }
+
+        /* Controles Inferiores */
+        .controls-area { display: flex; gap: 15px; justify-content: center; margin-bottom: 10px; }
+        .btn-ctrl { padding: 15px 25px; font-size: 1.2rem; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-start { background-color: #27ae60; color: white; }
+        .btn-stop { background-color: #7f8c8d; color: white; }
+        .btn-skip { background-color: #e67e22; color: white; display: flex; align-items: center; gap: 10px;}
+        .btn-reset { background-color: #c0392b; color: white; }
+
+        /* Animación para indicar que se adelantó el tiempo */
+        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .updated-time { animation: flash 1s ease; }
+
+    </style>
+</head>
+<body>
+
+    <div id="config-screen">
+        <div class="config-card">
+            <h2>⚙️ Configuración del Torneo</h2>
+            
+            <h3>1. Estructura de la Competición</h3>
+            <div class="grid-2">
+                <div>
+                    <label>Entradas de Calentamiento</label>
+                    <input type="number" id="n_calentamiento" value="2" min="0">
+                </div>
+                <div>
+                    <label>Entradas de Torneo (Puntuables)</label>
+                    <input type="number" id="n_torneo" value="20" min="1">
+                </div>
+            </div>
+
+            <h3>2. Tiempos (Segundos)</h3>
+            <div class="grid-4">
+                <div>
+                    <label>Preparación (Rojo)</label>
+                    <input type="number" id="t_prep" value="10">
+                </div>
+                <div>
+                    <label>Tiro (Verde)</label>
+                    <input type="number" id="t_tiro" value="120">
+                </div>
+                <div>
+                    <label>Advertencia (Amarillo)</label>
+                    <input type="number" id="t_warn" value="30">
+                </div>
+                <div>
+                    <label>Cambio Turno (Buffer)</label>
+                    <input type="number" id="t_buffer" value="5" title="Tiempo muerto entre AB y CD">
+                </div>
+            </div>
+
+            <h3>3. Rotación</h3>
+            <div>
+                <label>Secuencia de Tiradores</label>
+                <select id="seq_inicio">
+                    <option value="AB-CD" selected>Doble (AB tira, luego CD tira)</option>
+                    <option value="AB">Simple (Todos tiran a la vez)</option>
+                </select>
+            </div>
+
+            <button class="btn-primary" onclick="iniciarSistema()">🚀 Guardar e Iniciar Reloj</button>
+        </div>
+    </div>
+
+    <div id="timer-screen" class="hidden">
+        
+        <div class="top-stats">
+            <button class="btn-stop" style="padding: 5px 15px; font-size: 0.9rem;" onclick="volverConfig()">⚙️ Volver</button>
+            
+            <div class="stat-box">
+                <div class="stat-label">Fase Actual</div>
+                <div class="stat-value" id="info-fase">CALENTAMIENTO</div>
+            </div>
+            
+            <div class="stat-box">
+                <div class="stat-label">Entrada</div>
+                <div class="stat-value"><span id="info-tanda-actual">1</span> / <span id="info-tanda-total">22</span></div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-label">Hora Fin Estimada</div>
+                <div class="stat-value highlight" id="info-hora-fin">--:--</div>
+            </div>
+        </div>
+
+        <div id="display-turno" class="turn-display">PREPARADO</div>
+
+        <div id="display-reloj" class="timer-big bg-red">
+            00:00
+        </div>
+
+        <div class="controls-area">
+            <button class="btn-ctrl btn-start" onclick="togglePausa()">⏯ Iniciar / Pausa</button>
+            <button class="btn-ctrl btn-skip" onclick="avanzarFase()">
+                ⏩ Terminar Entrada Ya
+            </button>
+            <button class="btn-ctrl btn-reset" onclick="resetearTodo()">🔄 Reiniciar Serie</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN GLOBAL
+        let CONFIG = {};
+
+        // ESTADO DEL SISTEMA
+        let estado = {
+            activo: false,          // Si el reloj corre
+            tiempo: 0,              // Segundos actuales
+            intervalo: null,        // El timer de JS
+            
+            // Control de fases
+            faseSemáforo: 'espera', // espera, prep, tiro, cambio, fin
+            grupoActual: 'AB',      // AB o CD
+            
+            // Control de progreso
+            tipoSerie: 'CALENTAMIENTO', // o 'TORNEO'
+            indiceEntrada: 1,       // En qué número de entrada vamos (global)
+            totalEntradas: 0,       // Suma de calentamiento + torneo
+            entradasCalentamiento: 0
+        };
+
+        // --- 1. INICIALIZACIÓN ---
+
+        function iniciarSistema() {
+            // Leer Inputs
+            CONFIG = {
+                n_calent: parseInt(document.getElementById('n_calentamiento').value),
+                n_torneo: parseInt(document.getElementById('n_torneo').value),
+                t_prep: parseInt(document.getElementById('t_prep').value),
+                t_tiro: parseInt(document.getElementById('t_tiro').value),
+                t_warn: parseInt(document.getElementById('t_warn').value),
+                t_buffer: parseInt(document.getElementById('t_buffer').value),
+                secuencia: document.getElementById('seq_inicio').value
+            };
+
+            // Configurar Estado Inicial
+            estado.entradasCalentamiento = CONFIG.n_calent;
+            estado.totalEntradas = CONFIG.n_calent + CONFIG.n_torneo;
+            estado.indiceEntrada = 1;
+            estado.tipoSerie = (CONFIG.n_calent > 0) ? 'CALENTAMIENTO' : 'TORNEO';
+            estado.grupoActual = CONFIG.secuencia.split('-')[0]; // AB
+            
+            resetearRelojVisual();
+
+            // Cambiar Pantalla
+            document.getElementById('config-screen').classList.add('hidden');
+            document.getElementById('timer-screen').classList.remove('hidden');
+            
+            actualizarInfoPanel();
+            recalcularHoraFin();
+        }
+
+        function volverConfig() {
+            pausar();
+            document.getElementById('timer-screen').classList.add('hidden');
+            document.getElementById('config-screen').classList.remove('hidden');
+        }
+
+        // --- 2. MOTOR DEL RELOJ ---
+
+        function togglePausa() {
+            if (estado.activo) pausar();
+            else iniciar();
+        }
+
+        function iniciar() {
+            if (estado.activo) return;
+            
+            // Si estaba en espera, arrancamos la preparación
+            if (estado.faseSemáforo === 'espera') {
+                prepararEntrada();
+            }
+
+            estado.activo = true;
+            estado.intervalo = setInterval(ticTac, 1000);
+            recalcularHoraFin(); // Actualizar estimación al arrancar
+        }
+
+        function pausar() {
+            estado.activo = false;
+            clearInterval(estado.intervalo);
+            recalcularHoraFin(); // La hora fin se retrasará si estamos pausados mucho tiempo
+        }
+
+        function ticTac() {
+            if (estado.tiempo > 0) {
+                estado.tiempo--;
+                actualizarVisual();
+            } else {
+                // El tiempo llegó a 0, transicionar
+                siguientePasoLogico();
+            }
+            
+            // Recalcular hora fin cada minuto para mantenerla precisa o cada segundo si prefieres
+            if(estado.tiempo % 10 === 0) recalcularHoraFin(); 
+        }
+
+        // --- 3. LÓGICA DE FASES Y CONTROL ---
+
+        function prepararEntrada() {
+            estado.faseSemáforo = 'prep';
+            estado.tiempo = CONFIG.t_prep;
+            playSonido(2); // 2 pitidos (Entrar a linea)
+            actualizarVisual();
+        }
+
+        function siguientePasoLogico() {
+            // Máquina de estados
+            
+            if (estado.faseSemáforo === 'prep') {
+                // De Preparación -> Tiro
+                estado.faseSemáforo = 'tiro';
+                estado.tiempo = CONFIG.t_tiro;
+                playSonido(1); // 1 pitido (Empezar)
+            
+            } else if (estado.faseSemáforo === 'tiro') {
+                // Fin del tiempo de tiro
+                playSonido(2); // Pitidos fin de turno parcial
+                gestionarRotacion();
+            
+            } else if (estado.faseSemáforo === 'cambio') {
+                // Fin del tiempo buffer -> Siguiente grupo empieza a tirar (sin prep extra, o con prep según reglas)
+                // Generalmente en sala: AB tira -> Audio -> CD entra y tira.
+                // Aquí simplificamos: Buffer -> Tiro CD
+                estado.faseSemáforo = 'tiro';
+                estado.tiempo = CONFIG.t_tiro;
+                playSonido(1);
+            }
+            
+            actualizarVisual();
+            recalcularHoraFin();
+        }
+
+        function gestionarRotacion() {
+            const grupos = CONFIG.secuencia.split('-'); // ["AB", "CD"] o ["AB"]
+            
+            // Caso 1: Solo hay un grupo (AB)
+            if (grupos.length === 1) {
+                finDeEntradaCompleta();
+                return;
+            }
+
+            // Caso 2: Hay rotación (AB -> CD)
+            if (estado.grupoActual === grupos[0]) {
+                // Terminó el primero, toca el segundo
+                estado.grupoActual = grupos[1];
+                estado.faseSemáforo = 'cambio'; // Fase intermedia
+                estado.tiempo = CONFIG.t_buffer; 
+                // Nota: Luz roja durante el cambio
+            } else {
+                // Terminó el segundo, fin de la entrada
+                estado.grupoActual = grupos[0]; // Reset para la próxima
+                finDeEntradaCompleta();
+            }
+        }
+
+        function finDeEntradaCompleta() {
+            pausar();
+            playSonido(3); // 3 pitidos (Recoger flechas)
+            estado.faseSemáforo = 'fin';
+            estado.tiempo = 0;
+            actualizarVisual();
+            
+            // Avanzar contador de entradas
+            if (estado.indiceEntrada < estado.totalEntradas) {
+                estado.indiceEntrada++;
+                // Chequear si cambiamos de Calentamiento a Torneo
+                if (estado.indiceEntrada > estado.entradasCalentamiento) {
+                    estado.tipoSerie = 'TORNEO';
+                }
+                
+                // Preparar UI para la siguiente, pero esperando clic en "Iniciar"
+                setTimeout(() => {
+                    estado.faseSemáforo = 'espera';
+                    actualizarVisual();
+                    actualizarInfoPanel();
+                }, 2000);
+            } else {
+                alert("¡Torneo Finalizado!");
+                estado.faseSemáforo = 'terminado';
+                document.getElementById('display-turno').innerText = "COMPETICIÓN FINALIZADA";
+            }
+        }
+
+        // --- 4. FUNCIÓN "AVANZAR / TERMINAR YA" ---
+        
+        function avanzarFase() {
+            // Esta función simula que el tiempo se ha agotado inmediatamente
+            if (estado.faseSemáforo === 'tiro' || estado.faseSemáforo === 'prep') {
+                estado.tiempo = 0;
+                siguientePasoLogico();
+                // Si estaba pausado, lo forzamos a seguir lógica
+                if (!estado.activo) {
+                    // Solo actualizamos visual, no arrancamos timer automático para seguridad
+                    actualizarVisual();
+                }
+            }
+        }
+
+        function resetearTodo() {
+            pausar();
+            resetearRelojVisual();
+        }
+        
+        function resetearRelojVisual() {
+            estado.tiempo = CONFIG.t_prep;
+            estado.faseSemáforo = 'espera';
+            // Restaurar grupo inicial
+            estado.grupoActual = CONFIG.secuencia.split('-')[0];
+            actualizarVisual();
+        }
+
+        // --- 5. ESTIMACIÓN DE HORA (MATEMÁTICAS) ---
+
+        function recalcularHoraFin() {
+            if (estado.faseSemáforo === 'terminado') {
+                document.getElementById('info-hora-fin').innerText = "Fin";
+                return;
+            }
+
+            // 1. Calcular cuántas entradas enteras faltan
+            const entradasRestantes = estado.totalEntradas - estado.indiceEntrada;
+            
+            // 2. Calcular duración de UNA entrada completa
+            // Si es AB: Prep + Tiro + Recogida(aprox 2min)
+            // Si es AB-CD: (Prep + Tiro + Buffer + Tiro) + Recogida
+            // Estimamos recogida en 2 minutos (120s) o configurable, aquí pondré fijo 90s
+            const tiempoRecogida = 90; 
+            
+            let tiempoPorEntrada = 0;
+            if (CONFIG.secuencia === 'AB') {
+                tiempoPorEntrada = CONFIG.t_prep + CONFIG.t_tiro + tiempoRecogida;
+            } else {
+                // AB-CD: Prep + TiroAB + Buffer + TiroCD + Recogida
+                tiempoPorEntrada = CONFIG.t_prep + CONFIG.t_tiro + CONFIG.t_buffer + CONFIG.t_tiro + tiempoRecogida;
+            }
+
+            // 3. Tiempo restante de la entrada ACTUAL (lo que falta del semáforo actual + fases pendientes de esta ronda)
+            let tiempoRestanteActual = estado.tiempo; 
+            
+            // Si estamos en el primer turno de una doble, falta el segundo turno entero
+            if (CONFIG.secuencia === 'AB-CD' && estado.grupoActual === 'AB' && estado.faseSemáforo !== 'fin') {
+                tiempoRestanteActual += (CONFIG.t_buffer + CONFIG.t_tiro);
+            }
+            
+            // 4. Suma Total en segundos
+            const segundosTotalesFaltan = (entradasRestantes * tiempoPorEntrada) + tiempoRestanteActual;
+
+            // 5. Proyectar fecha
+            const ahora = new Date();
+            const fechaFin = new Date(ahora.getTime() + (segundosTotalesFaltan * 1000));
+            
+            const horas = fechaFin.getHours().toString().padStart(2, '0');
+            const mins = fechaFin.getMinutes().toString().padStart(2, '0');
+            
+            document.getElementById('info-hora-fin').innerText = `${horas}:${mins}`;
+        }
+
+        // --- 6. VISUALES Y AUDIO ---
+
+        function actualizarVisual() {
+            // Formatear Tiempo
+            const m = Math.floor(estado.tiempo / 60).toString().padStart(2, '0');
+            const s = (estado.tiempo % 60).toString().padStart(2, '0');
+            const display = document.getElementById('display-reloj');
+            display.innerText = `${m}:${s}`;
+
+            // Textos Superiores
+            document.getElementById('display-turno').innerText = 
+                (estado.faseSemáforo === 'espera' ? 'ESPERANDO ' : 'TURNO ') + estado.grupoActual;
+            
+            // Colores Semáforo
+            display.className = 'timer-big'; // Reset clases
+            if (estado.faseSemáforo === 'prep' || estado.faseSemáforo === 'cambio' || estado.faseSemáforo === 'fin' || estado.faseSemáforo === 'espera') {
+                display.classList.add('bg-red');
+            } else if (estado.faseSemáforo === 'tiro') {
+                if (estado.tiempo <= CONFIG.t_warn) display.classList.add('bg-yellow');
+                else display.classList.add('bg-green');
+            }
+        }
+
+        function actualizarInfoPanel() {
+            document.getElementById('info-fase').innerText = estado.tipoSerie;
+            document.getElementById('info-tanda-actual').innerText = estado.indiceEntrada;
+            document.getElementById('info-tanda-total').innerText = estado.totalEntradas;
+            
+            if(estado.tipoSerie === 'CALENTAMIENTO') {
+                document.getElementById('info-fase').style.color = '#f39c12';
+            } else {
+                document.getElementById('info-fase').style.color = '#2ecc71';
+            }
+        }
+
+        function playSonido(pitos) {
+            console.log("Sonido: " + pitos + " beeps");
+            // Aquí se integraría un <audio> real
+            // new Audio('beep.mp3').play();
+        }
+
+    </script>
+</body>
+</html>
