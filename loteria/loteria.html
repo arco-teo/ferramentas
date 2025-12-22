@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobador Loteria Nadal 2025</title>
+    <style>
+        :root {
+            --primary: #006400; /* Verde botella */
+            --accent: #d4af37;  /* Dourado */
+            --bg: #f4f4f4;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #004d00;
+        }
+
+        button.delete {
+            background-color: #cc0000;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        #action-panel {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #btn-check {
+            background-color: var(--accent);
+            color: #000;
+            font-size: 1.2em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .premio-row {
+            background-color: #e8f5e9;
+            font-weight: bold;
+        }
+
+        .total-box {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            font-size: 1.5em;
+            border-radius: 8px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎄 Loteria de Nadal 2025 🎄</h1>
+
+    <div class="input-group">
+        <input type="number" id="inputNumero" placeholder="Número (ex: 12345)" min="0" max="99999">
+        <input type="number" id="inputEuros" placeholder="Euros xogados (ex: 20)" min="1">
+        <button onclick="engadirNumero()">Engadir Número</button>
+    </div>
+
+    <div id="action-panel">
+        <button id="btn-check" onclick="comprobarTodos()">🔄 Comprobar Premios Agora</button>
+        <p class="status" id="statusMsg">Prema para actualizar datos</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Número</th>
+                <th>Xogado (€)</th>
+                <th>Premio (€)</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="listaNumeros">
+            </tbody>
+    </table>
+
+    <div class="total-box">
+        Total Ganado: <span id="totalGanado">0,00</span> €
+    </div>
+
+    <script>
+        // --- 1. Xestión de Datos (LocalStorage) ---
+        let osMeusNumeros = JSON.parse(localStorage.getItem('loteria2025')) || [];
+
+        function gardarDatos() {
+            localStorage.setItem('loteria2025', JSON.stringify(osMeusNumeros));
+            renderizarLista();
+        }
+
+        function engadirNumero() {
+            const numeroInput = document.getElementById('inputNumero');
+            const eurosInput = document.getElementById('inputEuros');
+            
+            const numero = numeroInput.value.padStart(5, '0'); // Asegura 5 díxitos
+            const euros = parseFloat(eurosInput.value);
+
+            if (!numero || isNaN(euros) || euros <= 0) {
+                alert("Por favor, introduce un número e unha cantidade válida.");
+                return;
+            }
+
+            // Se o número xa existe, sumamos a cantidade
+            const existente = osMeusNumeros.find(n => n.numero === numero);
+            if (existente) {
+                existente.euros += euros;
+            } else {
+                osMeusNumeros.push({ numero: numero, euros: euros, premio: 0 });
+            }
+
+            numeroInput.value = '';
+            eurosInput.value = '';
+            gardarDatos();
+        }
+
+        function borrarNumero(index) {
+            osMeusNumeros.splice(index, 1);
+            gardarDatos();
+        }
+
+        // --- 2. Lóxica da API ---
+        async function consultarAPI(numero) {
+            // URL da API de El País (Patrón histórico, pode cambiar lixeiramente)
+            // Usamos un proxy ou JSONP cleaning porque a API devolve texto tipo "busqueda({...})"
+            const url = `https://api.elpais.com/ws/LoteriaNavidadPremiados?n=${numero}`;
+
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                // LIMPEZA DA RESPOSTA: A API adoita devolver "busqueda({JSON})"
+                // Eliminamos o wrapper para obter só o JSON válido.
+                const jsonText = text.replace(/^busqueda\(/, '').replace(/\)$/, '');
+                const data = JSON.parse(jsonText);
+                
+                return data;
+            } catch (error) {
+                console.error("Erro consultando " + numero, error);
+                return null;
+            }
+        }
+
+        async function comprobarTodos() {
+            const btn = document.getElementById('btn-check');
+            const status = document.getElementById('statusMsg');
+            btn.disabled = true;
+            btn.textContent = "Consultando...";
+            status.textContent = "Conectando con Loterías...";
+
+            let totalPremios = 0;
+
+            // Procesamos todas as promesas á vez
+            const promesas = osMeusNumeros.map(async (item) => {
+                const datos = await consultarAPI(item.numero);
+                
+                if (datos) {
+                    // A API devolve o premio por DÉCIMO (20€ xogados)
+                    // datos.premio = Premio en Euros por décimo
+                    const premioPorDecimo = datos.premio; 
+                    
+                    // Regra de tres: (PremioDécimo / 20) * OQueXogueiEu
+                    const oMeuPremio = (premioPorDecimo / 20) * item.euros;
+                    
+                    item.premio = oMeuPremio;
+                    item.statusSorteo = datos.status; // 0:Non empezou, 1:En curso, 2:Finalizado
+                }
+                return item;
+            });
+
+            await Promise.all(promesas);
+
+            // Actualizamos vista e gardamos (cacheamos) os premios
+            gardarDatos();
+            
+            btn.disabled = false;
+            btn.textContent = "🔄 Comprobar Premios Agora";
+            
+            const hora = new Date().toLocaleTimeString();
+            status.textContent = `Última actualización: ${hora}`;
+        }
+
+        // --- 3. Renderizado (UI) ---
+        function renderizarLista() {
+            const tbody = document.getElementById('listaNumeros');
+            const totalSpan = document.getElementById('totalGanado');
+            tbody.innerHTML = '';
+            
+            let sumaTotal = 0;
+
+            osMeusNumeros.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                if (item.premio > 0) tr.classList.add('premio-row');
+
+                // Formatear moeda
+                const eurosFmt = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(item.euros);
+                const premioFmt = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(item.premio || 0);
+
+                tr.innerHTML = `
+                    <td><strong>${item.numero}</strong></td>
+                    <td>${eurosFmt}</td>
+                    <td>${item.premio > 0 ? '🎉 ' + premioFmt : '0,00 €'}</td>
+                    <td><button class="delete" onclick="borrarNumero(${index})">X</button></td>
+                `;
+                tbody.appendChild(tr);
+                sumaTotal += (item.premio || 0);
+            });
+
+            totalSpan.textContent = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2 }).format(sumaTotal);
+        }
+
+        // Carga inicial
+        renderizarLista();
+    </script>
+</body>
+</html>
