@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="gl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Estabilización - Ramrods</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; line-height: 1.6; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h1 { text-align: center; color: var(--primary); margin-bottom: 10px; }
+        .video-link { display: block; text-align: center; margin-bottom: 25px; color: #ef4444; text-decoration: none; font-weight: bold; }
+        .video-link:hover { text-decoration: underline; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border-color 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; }
+        .results { background: #eff6ff; padding: 20px; border-radius: 12px; margin: 25px 0; border: 1px solid #bfdbfe; }
+        .res-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1em; }
+        .res-item span:last-child { font-weight: 800; color: var(--primary); }
+        .help-section { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+        .help-item { margin-bottom: 15px; }
+        .help-item h4 { margin: 0 0 5px 0; color: var(--primary); }
+        .help-item p { margin: 0; font-size: 0.95em; color: #64748b; }
+        .badge { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Calculadora de Estabilizadores</h1>
+    <a href="https://www.youtube.com/watch?v=zzIhCghQeX8" target="_blank" class="video-link">▶ Ver vídeo explicativo (Youtube)</a>
+    
+    <div class="input-group">
+        <label for="height">A túa estatura (cm):</label>
+        <input type="number" id="height" placeholder="Ex: 175" oninput="calculate()">
+    </div>
+
+    <div class="input-group">
+        <label for="ext">Tipo de extensión (Spin):</label>
+        <select id="ext" onchange="calculate()">
+            <option value="2">Curta (2") - Menos rotación do arco</option>
+            <option value="3" selected>Estándar (3") - Equilibrio ideal</option>
+            <option value="4">Longa (4") - Máis rotación do arco</option>
+            <option value="5">Moi Longa (5") - Máxima inercia</option>
+        </select>
+    </div>
+
+    <div class="results">
+        <div class="res-item"><span>Sistema Frontal Total:</span> <span id="totalSys">-</span></div>
+        <div class="res-item"><span>Vara Longa (Long Rod):</span> <span id="longRod">-</span></div>
+        <div class="res-item"><span>Varas Laterais (Side Rods):</span> <span id="sideRod">-</span></div>
+    </div>
+
+    <div class="help-section">
+        <h3>Guía para principiantes</h3>
+        
+        <div class="help-item">
+            <h4>Sistema Frontal Total</h4>
+            <p>É a distancia desde o arco ata onde remata o estabilizador. O sistema calcula que sexa o 48% da túa altura para que o arco non sexa nin moi nervioso nin moi torpe.</p>
+        </div>
+
+        <div class="help-item">
+            <h4>Extensión <span class="badge">Opcional</span></h4>
+            <p>É a peza curta que separa o arco do V-Bar (onde se cruzan as varas). Unha extensión máis longa move o peso cara adiante, facendo que o arco "caia" e xire con máis ganas cara ao obxectivo despois de soltar a frecha.</p>
+        </div>
+
+        <div class="help-item">
+            <h4>Vara Longa (Long Rod)</h4>
+            <p>É o estabilizador principal que apunta á diana. Axuda a reducir o movemento lateral do arco mentres apuntas.</p>
+        </div>
+
+        <div class="help-item">
+            <h4>Varas Laterais (Side Rods)</h4>
+            <p>Son as varas que van cara atrás. A súa función é equilibrar o peso da vara longa e evitar que o arco se incline cara aos lados. O cálculo baséase no 20% da túa estatura.</p>
+        </div>
+        
+        <div class="help-item">
+            <h4>Nota sobre o V-Bar</h4>
+            <p>A calculadora xa resta automaticamente <strong>1.5 polgadas</strong> do total, que é o que adoita medir a peza de unión (V-Bar) e os seus conectores.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        const heightCm = document.getElementById('height').value;
+        const ext = parseFloat(document.getElementById('ext').value);
+        
+        if (heightCm > 100) {
+            const heightIn = heightCm / 2.54;
+            const totalSys = heightIn * 0.48;
+            const longRod = totalSys - ext - 1.5;
+            const sideRod = heightIn * 0.20;
+
+            document.getElementById('totalSys').innerText = totalSys.toFixed(1) + '"';
+            document.getElementById('longRod').innerText = Math.round(longRod) + '"';
+            document.getElementById('sideRod').innerText = Math.round(sideRod) + '"';
+        } else {
+            document.getElementById('totalSys').innerText = "-";
+            document.getElementById('longRod').innerText = "-";
+            document.getElementById('sideRod').innerText = "-";
+        }
+    }
+</script>
+
+</body>
+</html>
